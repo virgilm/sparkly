@@ -14,7 +14,7 @@ views:
           - type: horizontal-stack
             cards:
               - max: 35
-                min: 22
+                min: 15
                 theme: Backend-selected
                 entity: sensor.pool_water_temperature
                 severity:
@@ -65,7 +65,7 @@ views:
                     entity_id: sensor.ezo_orp
             type: glance
             show_state: true
-          - title: prueba
+          - title: Supplies
             type: horizontal-stack
             cards:
               - max: 20
@@ -311,4 +311,4 @@ views:
           - entity: sensor.cummulated_flow_high
           - entity: sensor.cummulated_flow_low
         type: entities
-        
+

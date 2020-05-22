@@ -6,8 +6,8 @@ switch:
 # gpio_in_BCM_number: name
 # example=> pin#35 = 'gpio.24' = rpi24 = BCM_19 => 19: pump
 # execute 'gpio readall' to see all gpios an theis states in console
-      19: Pump
-      26: Turbo
+      17: Pump
+      27: Turbo
       20: ph
       21: orp
     invert_logic: true
@@ -26,7 +26,7 @@ binary_sensor:
     sensors:
       bleach:
         friendly_name: "Bleach injection"
-        entity_id: 
+        entity_id:
           - switch.orp
           - input_boolean.lock_bleach
         device_class: plug
@@ -37,7 +37,7 @@ binary_sensor:
           {% endif %}
       muriatic:
         friendly_name: "Muriatic injection"
-        entity_id: 
+        entity_id:
           - switch.ph
           - input_boolean.lock_muriatic
         device_class: plug

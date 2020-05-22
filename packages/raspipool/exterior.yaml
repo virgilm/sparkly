@@ -3,7 +3,7 @@ sensor:
   - platform: openweathermap
     api_key: !secret openweathermap_api_key
     name: Exterior
-    language: es
+    language: en
     monitored_conditions:
       - weather
       - temperature

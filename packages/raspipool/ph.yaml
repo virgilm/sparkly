@@ -1,16 +1,16 @@
 sensor:
   - platform: atlas_scientific
-#    port: /dev/ttyUSB0
-    port: /dev/ttyAMA0
-#    scan_interval: 60
-    scan_interval: 31536000
-#    scan_interval: 10
+# For serial ports use:
+#   port: /dev/ttyUSB0
+# For I2C enter the hex device id
+    port: 0x63
+    scan_interval: 300
 
   - platform: statistics
     name: ph
     entity_id: sensor.ezo_ph
     max_age:
-      minutes: 10
+      minutes: 60
     # precision: 3
 
 input_number:
@@ -98,4 +98,4 @@ automation:
   action:
     - service: automation.trigger
       entity_id: automation.muriatic_set
-  
+

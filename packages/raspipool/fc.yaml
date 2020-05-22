@@ -58,7 +58,7 @@ automation:
 
 
 - alias: fc_low
-  id: '1559638825702'
+  id: '1559638825703'
   initial_state: true
   trigger:
     platform: numeric_state

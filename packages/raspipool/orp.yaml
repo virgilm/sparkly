@@ -3,13 +3,16 @@ sensor:
     name: orp
     entity_id: sensor.ezo_orp
     max_age:
-      minutes: 10
+      minutes: 60
     precision: 0
 
   - platform: atlas_scientific
-    port: /dev/ttyUSB0
-    offset: 78
-    scan_interval: 31536000
+# For serial ports use:
+#   port: /dev/ttyUSB0
+# For I2C enter the hex device id
+    port: 0x62
+#    offset: 78
+    scan_interval: 300
 
 automation:
 - alias: orp_start
