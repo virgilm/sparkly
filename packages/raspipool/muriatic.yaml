@@ -114,7 +114,7 @@ automation:
   - service: input_number.set_value
     data_template:
       entity_id: input_number.muriatic_inject
-      value: " {{ ( states('input_number.capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph_mean')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
+      value: " {{ ( states('input_number.capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
 
 - alias: muriatic_inject
   id: '1559949826459'

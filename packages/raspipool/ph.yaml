@@ -4,7 +4,7 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x63
-    scan_interval: 300
+    scan_interval: 10
 
   - platform: statistics
     name: ph
@@ -43,7 +43,7 @@ automation:
   initial_state: true
   trigger:
   - platform: numeric_state
-    entity_id: sensor.ph_mean
+    entity_id: sensor.ph
     above: 7.5
     for:
       hours: 48
@@ -60,7 +60,7 @@ automation:
   initial_state: true
   trigger:
   - platform: numeric_state
-    entity_id: sensor.ph_mean
+    entity_id: sensor.ph
     below: 6.9
     for:
       hours: 48
@@ -77,7 +77,7 @@ automation:
   initial_state: true
   trigger:
   - platform: template
-    value_template: '{{state_attr("sensor.ph_mean", "standard_deviation") > 0.1}}'
+    value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
   condition: []
   action:
   - service: notify.pushbullet

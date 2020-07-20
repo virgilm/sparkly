@@ -26,7 +26,7 @@ views:
               - max: 8
                 min: 6.5
                 theme: Backend-selected
-                entity: sensor.ph_mean
+                entity: sensor.ph
                 severity:
                   green: 6.95
                   red: 7.75
@@ -36,7 +36,7 @@ views:
               - max: 1999
                 min: -1999
                 theme: Backend-selected
-                entity: sensor.orp_mean
+                entity: sensor.orp
                 severity:
                   green: 650
                   red: 800
@@ -139,9 +139,9 @@ views:
                 name: Bleach inj.
               - entity: switch.ph
                 name: Muriatic inj.
-              - entity: sensor.ph_mean
+              - entity: sensor.ph
                 name: pH
-              - entity: sensor.orp_mean
+              - entity: sensor.orp
                 name: ORP
               - entity: sensor.pool_water_temperature
                 name: water temp.
@@ -154,9 +154,9 @@ views:
                 name: Bleach inj.
               - entity: switch.ph
                 name: Muriatic inj.
-              - entity: sensor.ph_mean
+              - entity: sensor.ph
                 name: pH
-              - entity: sensor.orp_mean
+              - entity: sensor.orp
                 name: ORP
               - entity: sensor.pool_water_temperature
                 name: water temp.
@@ -257,7 +257,7 @@ views:
             type: section
           - entity: input_number.ph_target
             name: pH target
-          - entity: sensor.ph_mean
+          - entity: sensor.ph
             name: pH actual
           - entity: input_number.muriatic_inject
             name: Next muriatic injection (ml)
