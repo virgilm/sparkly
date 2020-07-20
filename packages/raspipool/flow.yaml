@@ -17,7 +17,9 @@ sensor:
       remain_cycles:
         friendly_name: "Remain cycles"
         value_template: >-
-          {% set nextcycle = strptime(states('sensor.cycle_pool'),'%H:%M').hour + strptime(states('sensor.cycle_pool'),'%H:%M').minute|int/60 %} 
+          {% set hours = states('sensor.cycle_pool') | regex_replace(":[0-9]*$","") %}
+          {% set mins = states('sensor.cycle_pool') | regex_replace("^[0-9]*:","") %}
+          {% set nextcycle = (hours|int + mins|int/60) %}
           {{(states('input_number.notify_cycles')|float - (states('sensor.cummulated_flow_low')|float + states('sensor.cummulated_flow_high')|float * 5) / (state_attr('input_datetime.recirculation','hour')+ state_attr('input_datetime.recirculation','minute')|float/60) )|round(1)}}
         unit_of_measurement: ''
         entity_id: 
