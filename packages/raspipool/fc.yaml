@@ -3,7 +3,7 @@ sensor:
   - platform: template
     sensors:
       e_fc:
-        value_template: "{{ ( 0.23 * (1 + states('input_number.e_fc_adjust')|float / 100 ) * ( 14 - states('sensor.ph_mean')|float) ** ( 1 / (400 - states('sensor.orp_mean')|float) ) * ( states('sensor.ph_mean')|float -4.1) ** ( ( states('sensor.orp_mean')|float - 516)/145) + 10.0 ** ( (states('sensor.orp_mean')|float + states('sensor.ph_mean')|float * 70 -1282) / 40 ) ) |round(1) }}"
+        value_template: "{{ ( 0.23 * (1 + states('input_number.e_fc_adjust')|float / 100 ) * ( 14 - states('sensor.ph')|float) ** ( 1 / (400 - states('sensor.orp')|float) ) * ( states('sensor.ph')|float -4.1) ** ( ( states('sensor.orp')|float - 516)/145) + 10.0 ** ( (states('sensor.orp')|float + states('sensor.ph')|float * 70 -1282) / 40 ) ) |round(1) }}"
         unit_of_measurement: ppm
         # icon_template: mdi:chemical-weapon
         icon_template: mdi:react

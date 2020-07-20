@@ -12,7 +12,7 @@ sensor:
 # For I2C enter the hex device id
     port: 0x62
 #    offset: 78
-    scan_interval: 300
+    scan_interval: 10
 
 automation:
 - alias: orp_start
@@ -35,12 +35,12 @@ automation:
   initial_state: true
   trigger:
   - platform: template
-    value_template: '{{state_attr("sensor.orp_mean", "standard_deviation") > 20 }}'
+    value_template: '{{state_attr("sensor.orp", "standard_deviation") > 20 }}'
   condition: []
   action:
   - service: notify.pushbullet
     data_template:
-      message: 'Between {{state_attr("sensor.orp_mean", "min_value")}} and {{state_attr("sensor.orp_mean", "max_value")}}{{- "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      message: 'Between {{state_attr("sensor.orp", "min_value")}} and {{state_attr("sensor.orp", "max_value")}}{{- "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
       title: 'ORP probe bad (calibrate?) !!!'
   - service: automation.turn_off
     entity_id: automation.orp_bad

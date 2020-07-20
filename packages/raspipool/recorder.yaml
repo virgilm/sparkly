@@ -5,8 +5,8 @@ recorder:
     entities:
       - sensor.pump_state
       - sensor.pool_temp_mean
-      - sensor.orp_mean
-      - sensor.ph_mean
+      - sensor.orp
+      - sensor.ph
       - sensor.pool_water_temperature
       - sensor.ezo_ph
       - sensor.ezo_orp
