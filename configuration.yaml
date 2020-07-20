@@ -3,8 +3,8 @@ homeassistant:
   # Location required to calculate the time the sun rises and sets
   latitude: !secret latitude
   longitude: !secret longitude
-  unit_system: metric
-  customize: !include customize.yaml
+  unit_system: imperial
+#  customize: !include customize.yaml
   packages: !include_dir_named packages
 default_config:
 # Disable Discover some devices automatically
@@ -12,7 +12,7 @@ default_config:
 tts:
   - platform: google_translate
 logger:
-  default: critical
+  default: warning
   logs:
     homeassistant.components.sensor.atlas_scientific: debug
     homeassistant.components.switch.command_line: debug

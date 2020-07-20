@@ -9,6 +9,8 @@ import io
 import fcntl
 import string
 import time
+import random
+import math
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import (
@@ -26,6 +28,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 	vol.Optional(CONF_NAME, default='ezo'): cv.string,
 	vol.Optional(CONF_OFFSET, default=0.0): vol.Coerce(float)
 })
+
+DEBUG_MODE = 1
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
 	"""Setup the sensor platform."""
@@ -60,6 +64,32 @@ class AtlasSensor(Entity):
 
 		_LOGGER.debug("Checking port %s", port)
 		self.port = int(port,0)
+		if DEBUG_MODE == 1:
+			if self.port == 0x63:
+				# ph sensor
+				ezo = ["x", "ph", "DEBUG"]
+				self._ezo_dev = ezos[ezo[1]][0]
+				self._ezo_uom = ezos[ezo[1]][1]
+				self._ezo_icon = ezos[ezo[1]][2]
+				self.auto_sleep = ezos[ezo[1]][3]
+				self._ezo_fwversion = ezo[2]
+				self._name += ("_" + self._ezo_dev)
+				self._state = 7.4
+				_LOGGER.error("Atlas EZO '%s' version %s detected" % (self._ezo_dev, self._ezo_fwversion ) )
+				return
+			elif self.port == 0x62:
+				# orp sensor
+				ezo = ["x", "orp", "DEBUG"]
+				self._ezo_dev = ezos[ezo[1]][0]
+				self._ezo_uom = ezos[ezo[1]][1]
+				self._ezo_icon = ezos[ezo[1]][2]
+				self.auto_sleep = ezos[ezo[1]][3]
+				self._ezo_fwversion = ezo[2]
+				self._name += ("_" + self._ezo_dev)
+				self._state = 600
+				_LOGGER.error("Atlas EZO '%s' version %s detected" % (self._ezo_dev, self._ezo_fwversion ) )
+				return
+
 		if(self.port > 0):
 			self.io_mode = 1 # switch to I2C communication
 			_LOGGER.info("I2C for Atlas EZO @%02x", self.port)
@@ -186,6 +216,12 @@ class AtlasSensor(Entity):
 	def update(self):
 		"""Fetch new state data for the sensor.
 		"""
+		if DEBUG_MODE == 1:
+			if self.port == 0x63:
+				self._state = round(random.uniform(7,8), 2)
+			if self.port == 0x62:
+				self._state = round(random.uniform(400,700), 0)
+			return
 		try:
 			r = self._read()
 			self._state = float(r) + self._offset
@@ -193,8 +229,7 @@ class AtlasSensor(Entity):
 			if self.auto_sleep==1:
 				self._read("SLEEP")
 		except Exception as e:
-			_LOGGER.error("Exception: "+e+"! read '%s'" % r)
-		return
+			_LOGGER.exception("Exception! read '%s'" % r)
 
 	def __del__(self):
 		"""close the sensor."""
