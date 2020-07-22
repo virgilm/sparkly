@@ -58,33 +58,3 @@ input_number:
     max: 100
     step: 5
 
-automation:
-- alias: notify_cummulated_flow
-  id: '1559049859380'
-  initial_state: true
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.remain_cycles
-    below: 1
-  condition:
-  - condition: numeric_state
-    entity_id: input_number.notify_cycles
-    above: 0
-  action:
-  - data_template:
-      message: "in low speed: {{state_attr('sensor.cummulated_flow_low','value')}}{{'\n'}}in high speed: {{state_attr('sensor.cummulated_flow_high','value')}}{{'\n'}}@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Flow: {{states('input_number.notify_cycles')|int}} cycles reached!!!"
-    service: notify.pushbullet
-
-- alias: reset_cummulated_flow_start
-  id: '1559293506609'
-  trigger: []
-  condition: []
-  action:
-  - service: input_datetime.set_datetime
-    data_template:
-      entity_id: input_datetime.cummulated_flow_start
-      date: "{{now().timestamp()|timestamp_custom('%Y-%m-%d', True)}}"
-      time: "{{now().timestamp()|timestamp_custom('%H:%M:%S', True)}}"
-
-

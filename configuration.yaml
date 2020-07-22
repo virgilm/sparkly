@@ -19,7 +19,7 @@ logger:
 
 group: !include groups.yaml
 # Disable automation
-# automation: !include automations.yaml
+automation: !include automations.yaml
 script: !include scripts.yaml
 lovelace:
   mode: yaml

@@ -1,0 +1,668 @@
+# PH section
+- alias: ph_start
+  id: '1559669855764'
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.ph
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: switch.pump
+    state: 'off'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.ph
+
+- alias: ph_high
+  id: '1559049859759'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.ph
+    above: 7.5
+    for:
+      hours: 48
+  condition: []
+  action:
+  - data_template:
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'pH high ({{trigger.to_state.state}})!!!'
+    service: notify.pushbullet
+
+- alias: ph_low
+  id: '1559049839760'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.ph
+    below: 6.9
+    for:
+      hours: 48
+  condition: []
+  action:
+  - data_template:
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'pH low ({{trigger.to_state.state}})!!!'
+    service: notify.pushbullet
+
+- alias: ph_bad
+  id: '1559049893756'
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
+  condition: []
+  action:
+  - service: notify.pushbullet
+    data_template:
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'pH probe bad (calibrate?) !!!'
+  - service: automation.turn_off
+    entity_id: automation.ph_bad
+
+- alias: ph_target
+  id: '1559146893656'
+  initial_state: true
+  trigger:
+    - platform: state
+      entity_id: input_number.ph_target
+  condition: []
+  action:
+    - service: automation.trigger
+      entity_id: automation.muriatic_set
+
+# ORP section
+- alias: orp_start
+  id: '1559639825764'
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.orp
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: switch.pump
+    state: 'off'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.orp
+
+- alias: orp_bad
+  id: '1559149493756'
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: '{{state_attr("sensor.orp", "standard_deviation") > 20 }}'
+  condition: []
+  action:
+  - service: notify.pushbullet
+    data_template:
+      message: 'Between {{state_attr("sensor.orp", "min_value")}} and {{state_attr("sensor.orp", "max_value")}}{{- "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'ORP probe bad (calibrate?) !!!'
+  - service: automation.turn_off
+    entity_id: automation.orp_bad
+
+# Bleach Section
+- alias: bleach_every_hour
+  id: '1554367517425'
+  initial_state: true
+  trigger:
+  - platform: time_pattern
+    minutes: 1
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.bleach_tank
+      value: " {{ ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) ) | round(2) }} "
+
+- alias: bleach_tank_low
+  id: '1559049845420'
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_bleach_tank')|int> 0 and states('sensor.bleach_tank')|float < states('input_number.notify_bleach_tank')|float %}true{% endif %}"
+  condition: []
+  action:
+  - data_template:
+      message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Bleach tank low ({{states('input_number.bleach_tank')|float}} liters )!!!"
+    service: notify.pushbullet
+
+- alias: bleach_high
+  id: '1559049844490'
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_bleach_high')|int> 0 and states('sensor.bleach_on_last_48h')|float > (states('input_number.notify_bleach_high')|float *100 ) / (states('input_number.bleach_speed')|float *6) %}true{% endif %}"
+  condition: []
+  action:
+  - entity_id: switch.orp
+    service: switch.turn_off
+  - entity_id: input_boolean.lock_bleach
+    service: input_boolean.turn_on
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Bleach inject blocked ({{states('input_number.notify_bleach_high')}} in 48 hours)!!!"
+    service: notify.pushbullet
+
+- alias: bleach_set
+  id: '1559149839459'
+  initial_state: true
+  trigger: []
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.bleach_inject
+      value: " {{ ( states('input_number.capacity')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
+
+- alias: bleach_inject
+  id: '1559149426435'
+  initial_state: true
+  trigger: []
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.lock_bleach
+    state: 'off'
+  - condition: numeric_state
+    entity_id: input_number.bleach_inject
+    value_template: "{{ states('input_number.bleach_inject')|float / states('input_number.capacity')|float }}"
+    above: 10.0
+    below: 200.0
+  - entity_id: switch.orp
+    service: switch.turn_on
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Bleach injection: ({{states('input_number.bleach_inject')}} ml)!!!"
+    service: notify.pushbullet
+  - delay: 00:00:{{ [0 , 60 * states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }}
+  - entity_id: switch.orp
+    service: switch.turn_off
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Bleach injection end!!!"
+    service: notify.pushbullet
+
+#FC Section
+- alias: fc_ok
+  id: '1559638825701'
+  initial_state: true
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.e_fc
+    above: 0.60
+    below: 5.00
+    for:
+      minutes: 1
+  condition: []
+  action:
+  - service: frontend.set_theme
+    data:
+      name: default
+- alias: fc_high
+  id: '1559638825702'
+  initial_state: true
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.e_fc
+    above: 5.01
+    for:
+      minutes: 1
+  condition: []
+  action:
+  - service: frontend.set_theme
+    data:
+      name: danger
+
+
+- alias: fc_low
+  id: '1559638825703'
+  initial_state: true
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.e_fc
+    below: 0.59
+    for:
+      minutes: 1
+  condition: []
+  action:
+  - service: frontend.set_theme
+    data:
+      name: algae
+
+
+- alias: fc_target
+  id: '1559146873657'
+  initial_state: true
+  trigger:
+    - platform: state
+      entity_id: input_number.fc_target
+  condition: []
+  action:
+    - service: automation.trigger
+      entity_id: automation.bleach_set
+
+# Muriatic Section
+- alias: muriatic_every_hour
+  id: '1554167717425'
+  initial_state: true
+  trigger:
+  - platform: time_pattern
+    minutes: 1
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_tank
+      value: " {{ ( states('input_number.muriatic_tank')|float - ( states('sensor.muriatic_on_last_hour')|float * states('input_number.muriatic_speed')|int * 6 / 100 ) ) | round(2) }} "
+
+- alias: muriatic_tank_low
+  id: '1559049845419'
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_muriatic_tank')|int> 0 and states('sensor.muriatic_tank')|float < states('input_number.notify_muriatic_tank')|float %}true{% endif %}"
+  condition: []
+  action:
+  - data_template:
+      message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic tank low ({{states('input_number.muriatic_tank')|float}} liters )!!!"
+    service: notify.pushbullet
+
+- alias: muriatic_high
+  id: '1559049844489'
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_muriatic_high')|int> 0 and states('sensor.muriatic_on_last_48h')|float > (states('input_number.notify_muriatic_high')|float*100 ) / (states('input_number.muriatic_speed')|float *6) %}true{% endif %}"
+  condition: []
+  action:
+  - entity_id: switch.ph
+    service: switch.turn_off
+  - entity_id: input_boolean.lock_muriatic
+    service: input_boolean.turn_on
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic inject blocked ({{states('input_number.notify_muriatic_high')}} in 48 hours)!!!"
+    service: notify.pushbullet
+
+- alias: muriatic_set
+  id: '1559049844459'
+  initial_state: true
+  trigger: []
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_inject
+      value: " {{ ( states('input_number.capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
+
+- alias: muriatic_inject
+  id: '1559949826459'
+  initial_state: true
+  trigger: []
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.lock_muriatic
+    state: 'off'
+  - condition: numeric_state
+    entity_id: input_number.muriatic_inject
+    value_template: "{{ states('input_number.muriatic_inject')|float / states('input_number.capacity')|float }}"
+    above: 5.0
+    below: 100.0
+  - entity_id: switch.ph
+    service: switch.turn_on
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic injection: ({{states('input_number.muriatic_inject')}} ml)!!!"
+    service: notify.pushbullet
+  - delay: 00:00:{{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }}
+  - entity_id: switch.ph
+    service: switch.turn_off
+  - data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic injection end!!!"
+    service: notify.pushbullet
+
+
+# Pump Section
+- alias: cycle_start
+  id: '1559137717424'
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states.sensor.time.state == (states.input_datetime.cycle_start.attributes.timestamp
+      | int | timestamp_custom('%H:%M', False)) }}"
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.out_of_order
+      value: "{{ states('input_number.out_of_order')|int - 1 }}"
+  - condition: numeric_state
+    entity_id: input_number.out_of_order
+    below: 0
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.cycle
+      value: "{% set lmins = states('input_number.cycle')|int %} {%- if lmins <
+        0 -%} {{ lmins + 1 }} {%- else -%} {% set mins = strptime(states('sensor.cycle_pool'),'%H:%M').hour
+        * 60 + strptime(states('sensor.cycle_pool'),'%H:%M').minute %} {%- if
+        lmins < 240 -%} {{ mins + lmins }} {%- elif lmins < 1440 -%} {{ mins }} {%- else -%} {{ lmins }} {%- endif -%} 
+{%- endif -%}"
+  - condition: numeric_state
+    entity_id: input_number.cycle
+    above: 239
+  - service: automation.trigger
+    entity_id: automation.cycle_pump_start
+  - condition: numeric_state
+    entity_id: input_number.cycle
+    below: 1440
+  - delay: 00:00:10
+  - service: automation.trigger
+    entity_id: automation.cycle_turbo_start
+  - condition: numeric_state
+    entity_id: input_number.second_cycle
+    above: 0
+  - delay: 00:{{720 + (states('input_number.cycle')|int * (100 - states('input_number.second_cycle')|int)/200)|int }}:00
+
+- alias: cycle_pump_start
+  id: '1559293900608'
+  trigger: []
+  condition: []
+  action:
+  - entity_id: switch.pump
+    service: switch.turn_on
+  - entity_id: automation.ph_bad
+    service: automation.turn_on
+  - entity_id: automation.orp_bad
+    service: automation.turn_on
+  - delay: 00:15:00
+  - service: automation.trigger
+    entity_id: automation.bleach_set
+  - service: automation.trigger
+    entity_id: automation.bleach_inject
+  - delay: 00:05:00
+  - service: automation.trigger
+    entity_id: automation.muriatic_set
+  - service: automation.trigger
+    entity_id: automation.muriatic_inject
+  - delay: 00:{{ [1440 , (states('input_number.cycle')|int * (1 - states('input_number.second_cycle')|int/100))|int]|min }}:00
+  - entity_id: switch.pump
+    service: switch.turn_off
+  - condition: numeric_state
+    entity_id: input_number.cycle
+    above: 1439
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.cycle
+      value: "{{ states('input_number.cycle')|int - 1440 }}"
+
+- alias: cycle_turbo_start
+  id: '1559223936600'
+  trigger: []
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.turbo
+    state: 'on'
+  - condition: numeric_state
+    entity_id: input_number.turbo
+    above: '0'
+  - entity_id: switch.turbo
+    service: switch.turn_off
+  - delay: 00:{{ (states('input_number.cycle')|int * (1 - states('input_number.second_cycle')|int/100) * (1 - states('input_number.turbo')|int /100) /2 )|int }}:00
+  - entity_id: switch.turbo
+    service: switch.turn_on
+  - delay: 00:{{ (states('input_number.cycle')|int * (1 - states('input_number.second_cycle')|int/100) * states('input_number.turbo')|int /100 )|int }}:00
+  - entity_id: switch.turbo
+    service: switch.turn_off
+  initial_state: true
+
+- alias: pump_start
+  id: '1559049859754'
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.pump
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.turbo
+    state: 'on'
+  - condition: state
+    entity_id: switch.turbo
+    state: 'off'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.turbo
+  - delay: 00:00:02
+  - service: switch.turn_off
+    entity_id: switch.turbo
+
+- alias: pump_stop
+  id: '1559449855764'
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.pump
+    to: 'off'
+  condition: []
+  action:
+  - service: switch.turn_off
+    entity_id: switch.ph
+  - service: switch.turn_off
+    entity_id: switch.orp
+
+- alias: every_2_min
+  id: '1554168816425'
+  initial_state: true
+  trigger:
+  - platform: time_pattern
+    minutes: '/2'
+  condition:
+  - condition: state
+    entity_id: switch.pump
+    state: 'on'
+    for:
+      minutes: 5
+  action:
+  - service: homeassistant.update_entity
+    entity_id: sensor.ezo_ph
+  - service: homeassistant.update_entity
+    entity_id: sensor.pool_water_temperature
+  - service: homeassistant.update_entity
+    entity_id: sensor.ezo_orp
+
+
+- alias: pump_on_for
+  id: '1549429855765'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: input_number.pump_on_for
+    above: '0'
+  condition: []
+  action:
+  - service: switch.turn_on
+    entity_id: switch.pump
+  - delay: "{{states('input_number.pump_on_for')|int}}:{{((states('input_number.pump_on_for')|float % 1)*60)|int}}:0"
+  - service: switch.turn_off
+    entity_id: switch.pump
+  - service: input_number.set_value
+    data:
+      entity_id: input_number.pump_on_for
+      value: '0'
+
+
+# Flow Section
+- alias: notify_cummulated_flow
+  id: '1559049859380'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.remain_cycles
+    below: 1
+  condition:
+  - condition: numeric_state
+    entity_id: input_number.notify_cycles
+    above: 0
+  action:
+  - data_template:
+      message: "in low speed: {{state_attr('sensor.cummulated_flow_low','value')}}{{'\n'}}in high speed: {{state_attr('sensor.cummulated_flow_high','value')}}{{'\n'}}@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Flow: {{states('input_number.notify_cycles')|int}} cycles reached!!!"
+    service: notify.pushbullet
+
+- alias: reset_cummulated_flow_start
+  id: '1559293506609'
+  trigger: []
+  condition: []
+  action:
+  - service: input_datetime.set_datetime
+    data_template:
+      entity_id: input_datetime.cummulated_flow_start
+      date: "{{now().timestamp()|timestamp_custom('%Y-%m-%d', True)}}"
+      time: "{{now().timestamp()|timestamp_custom('%H:%M:%S', True)}}"
+
+
+
+- alias: winter_session
+  id: '1559049956784'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: input_number.cycle
+    below: 240
+    for:
+      hours: 121
+  condition:
+  - condition: state
+    entity_id: input_boolean.notify_seasson
+    state: 'on'
+  action:
+  - data_template:
+      message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: 'Winter is comming!!!'
+    service: notify.pushbullet
+
+- alias: summer_session
+  id: '1559049956785'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: input_number.cycle
+    above: 240
+    for:
+      hours: 121
+  condition:
+  - condition: state
+    entity_id: input_boolean.notify_seasson
+    state: 'on'
+  action:
+  - data_template:
+      message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Summer is here!!!"
+    service: notify.pushbullet
+
+
+- alias: factory_started
+  id: '1559149839000'
+  initial_state: true
+  trigger:
+    platform: homeassistant
+    event: start
+  condition: 
+    condition: state 
+    entity_id: input_boolean.factory_started
+    state: 'off'
+  action:
+  - service: input_boolean.turn_on
+    data:
+      entity_id: input_boolean.factory_started
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.capacity
+      value: 50
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.quality
+      value: 4
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.bleach_tank
+      value: 20
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.bleach_concentration
+      value: 5
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.bleach_speed
+      value: 25
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.fc_target
+      value: 1.5
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.e_fc_adjust
+      value: 0
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.ph_target
+      value: 7.2
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_tank
+      value: 10
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_concentration
+      value: 20
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_speed
+      value: 25
+
+# Temperature Section
+- alias: temp_lo
+  id: '1559049959764'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pool_water_temperature
+    below: 7
+    for:
+      hours: 48
+  condition: []
+  action:
+  - data_template:
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'temperature low ({{trigger.to_state.state}})!!!'
+    service: notify.pushbullet
+
+- alias: temp_high
+  id: '1559049959765'
+  initial_state: true
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.pool_water_temperature
+    above: 32
+    for:
+      hours: 48
+  condition: []
+  action:
+  - data_template:
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+      title: 'temperature high ({{trigger.to_state.state}})!!!'
+    service: notify.pushbullet
+
