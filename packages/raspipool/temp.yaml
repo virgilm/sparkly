@@ -27,38 +27,3 @@ sensor:
 #    max_age:
 #      minutes: 60
 
-automation:
-- alias: temp_lo
-  id: '1559049959764'
-  initial_state: true
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.pool_water_temperature
-    below: 7
-    for:
-      hours: 48
-  condition: []
-  action:
-  - data_template:
-      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'temperature low ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
-
-- alias: temp_high
-  id: '1559049959765'
-  initial_state: true
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.pool_water_temperature
-    above: 32
-    for:
-      hours: 48
-  condition: []
-  action:
-  - data_template:
-      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'temperature high ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
-
