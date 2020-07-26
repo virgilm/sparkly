@@ -16,7 +16,7 @@ views:
               - max: 35
                 min: 15
                 theme: Backend-selected
-                entity: sensor.pool_water_temperature
+                entity: sensor.pool_temp
                 severity:
                   green: 27
                   red: 33
@@ -45,12 +45,12 @@ views:
                 type: gauge
           - show_name: false
             entities:
-              - entity: sensor.pool_water_temperature
+              - entity: sensor.pool_temp
                 hold_action:
                   action: call-service
                   service: homeassistant.update_entity
                   service_data:
-                    entity_id: sensor.pool_water_temperature
+                    entity_id: sensor.pool_temp
               - entity: sensor.ezo_ph
                 hold_action:
                   action: call-service
@@ -143,7 +143,7 @@ views:
                 name: pH
               - entity: sensor.orp
                 name: ORP
-              - entity: sensor.pool_water_temperature
+              - entity: sensor.pool_temp
                 name: water temp.
             type: history-graph
             hours_to_show: 3
@@ -158,7 +158,7 @@ views:
                 name: pH
               - entity: sensor.orp
                 name: ORP
-              - entity: sensor.pool_water_temperature
+              - entity: sensor.pool_temp
                 name: water temp.
             type: history-graph
             hours_to_show: 72
