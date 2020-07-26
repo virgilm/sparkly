@@ -18,7 +18,7 @@ sensor:
         unit_of_measurement: 'F'
 #  - platform: onewire
 #    names:
-#      28-0319a2792bc3: Pool water
+#      28-0319a2792bc3: Pool Water
 #    scan_interval: 10
 
 # Atlas Resistance Temperature Detector (RTD)

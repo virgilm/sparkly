@@ -8,21 +8,63 @@ homeassistant:
   packages: !include_dir_named packages
   external_url: "http://ivmcontrol.dscloud.me:8123"
   internal_url: "http://homeassistant.local:8123"
-default_config:
-# Disable Discover some devices automatically
+
+# Disable default config, selectively enable services needed.
+# default_config:
+
+# automation:
+# cloud:
+# config:
 # discovery:
+frontend:
+history:
+input_boolean:
+input_datetime:
+input_number:
+input_select:
+input_text:
+logbook:
+# map:
+# mobile_app:
+# person
+# scene
+# Script
+# sspd:
+sun:
+system_health:
+# updater:
+# zeroconf:
+# zone
+
 tts:
   - platform: google_translate
 logger:
   default: info
   logs:
     custom_components.atlas_scientific.sensor: debug
-    homeassistant.components.sensor.atlas_scientific: debug
     homeassistant.components.switch.command_line: debug
+    homeassistant.components.homekit: debug
     zeroconf: error
     homeassistant.components.websocket_api.http.connection: error
 
 group: !include groups.yaml
+homekit: !include homekit.yaml
+emulated_hue:
+  listen_port: 80
+  expose_by_default: false
+  entities:
+    switch.pump:
+      name: Pump
+      hidden: false
+    switch.ph:
+      name: Acid Pump
+      hidden: false
+    switch.orp:
+      name: Chlorine Pump
+      hidden: false
+    switch.turbo:
+      name: Turbo
+      hidden: false
 automation: !include automations.yaml
 script: !include scripts.yaml
 lovelace:
