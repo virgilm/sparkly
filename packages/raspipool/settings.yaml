@@ -7,7 +7,7 @@ input_datetime:
     name: Recirculation cycle
     has_time: true
     has_date: false
-    icon: mdi:timer
+    icon: mdi:timer-outline
 
 
 input_number:

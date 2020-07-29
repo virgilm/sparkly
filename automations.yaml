@@ -487,18 +487,18 @@
   initial_state: true
   trigger:
   - platform: numeric_state
-    entity_id: input_number.pump_on_for
+    entity_id: input_number.boost_for
     above: '0'
   condition: []
   action:
   - service: switch.turn_on
     entity_id: switch.pump
-  - delay: "{{states('input_number.pump_on_for')|int}}:{{((states('input_number.pump_on_for')|float % 1)*60)|int}}:0"
+  - delay: "{{states('input_number.boost_for')|int}}:{{((states('input_number.boost_for')|float % 1)*60)|int}}:0"
   - service: switch.turn_off
     entity_id: switch.pump
   - service: input_number.set_value
     data:
-      entity_id: input_number.pump_on_for
+      entity_id: input_number.boost_for
       value: '0'
 
 

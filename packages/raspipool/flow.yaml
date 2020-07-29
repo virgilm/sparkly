@@ -48,12 +48,12 @@ input_datetime:
     name: Cummulated Flow Start
     has_date: true
     has_time: true
-    icon: mdi:timer
+    icon: mdi:timer-outline
 
 input_number:
   notify_cycles:
     name: Notify cycles flow
-    icon: mdi:timer
+    icon: mdi:timer-outline
     min: 0
     max: 100
     step: 5
