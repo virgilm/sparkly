@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Code from https://github.com/Atlas-Scientific/Raspberry-Pi-sample-code
+# TODO: might be better to have a git submodule here.
 
 import io
 import sys
@@ -14,7 +16,7 @@ class AtlasI2C:
     LONG_TIMEOUT = 1.5
     # timeout for regular commands
     SHORT_TIMEOUT = .3
-    # the default bus for I2C on the newer Raspberry Pis, 
+    # the default bus for I2C on the newer Raspberry Pis,
     # certain older boards use bus 0
     DEFAULT_BUS = 1
     # the default address for the sensor
@@ -33,17 +35,17 @@ class AtlasI2C:
         self.bus = bus or self.DEFAULT_BUS
         self._long_timeout = self.LONG_TIMEOUT
         self._short_timeout = self.SHORT_TIMEOUT
-        self.file_read = io.open(file="/dev/i2c-{}".format(self.bus), 
-                                 mode="rb", 
+        self.file_read = io.open(file="/dev/i2c-{}".format(self.bus),
+                                 mode="rb",
                                  buffering=0)
         self.file_write = io.open(file="/dev/i2c-{}".format(self.bus),
-                                  mode="wb", 
+                                  mode="wb",
                                   buffering=0)
         self.set_i2c_address(self._address)
         self._name = name
         self._module = moduletype
 
-	
+
     @property
     def long_timeout(self):
         return self._long_timeout
@@ -55,16 +57,16 @@ class AtlasI2C:
     @property
     def name(self):
         return self._name
-        
+
     @property
     def address(self):
         return self._address
-        
+
     @property
     def moduletype(self):
         return self._module
-        
-        
+
+
     def set_i2c_address(self, addr):
         '''
         set the I2C communications to the slave specified by the address
@@ -85,16 +87,16 @@ class AtlasI2C:
 
     def handle_raspi_glitch(self, response):
         '''
-        Change MSB to 0 for all received characters except the first 
+        Change MSB to 0 for all received characters except the first
         and get a list of characters
-        NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, 
+        NOTE: having to change the MSB to 0 is a glitch in the raspberry pi,
         and you shouldn't have to do this!
         '''
         if self.app_using_python_two():
             return list(map(lambda x: chr(ord(x) & ~0x80), list(response)))
         else:
             return list(map(lambda x: chr(x & ~0x80), list(response)))
-            
+
     def app_using_python_two(self):
         return sys.version_info[0] < 3
 
@@ -110,12 +112,12 @@ class AtlasI2C:
         valid = True
         error_code = None
         if(len(response) > 0):
-            
+
             if self.app_using_python_two():
                 error_code = str(ord(response[0]))
             else:
                 error_code = str(response[0])
-                
+
             if error_code != '1': #1:
                 valid = False
 
@@ -126,12 +128,12 @@ class AtlasI2C:
             return self._module + " " + str(self.address)
         else:
             return self._module + " " + str(self.address) + " " + self._name
-        
+
     def read(self, num_of_bytes=31):
         '''
         reads a specified number of bytes from I2C, then parses and displays the result
         '''
-        
+
         raw_data = self.file_read.read(num_of_bytes)
         response = self.get_response(raw_data=raw_data)
         #print(response)
@@ -157,7 +159,7 @@ class AtlasI2C:
 
     def query(self, command):
         '''
-        write a command to the board, wait the correct timeout, 
+        write a command to the board, wait the correct timeout,
         and read the response
         '''
         self.write(command)
