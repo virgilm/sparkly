@@ -47,7 +47,7 @@ input_number:
     step: 5
     unit_of_measurement: '%'
     icon: mdi:replay
-  pump_on_for:
+  boost_for:
     min: 0
     max: 10
     step: 0.25
