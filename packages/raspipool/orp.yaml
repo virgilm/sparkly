@@ -14,4 +14,13 @@ sensor:
 #    offset: 78
     scan_interval: 10
 
+input_number:
+  calibrate_orp:
+    min: 100
+    max: 1500
+    step: 1
+    unit_of_measurement: 'mV'
+    icon: mdi:water-percent
+    mode: box
+    initial: 700
 

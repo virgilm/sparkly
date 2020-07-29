@@ -271,44 +271,86 @@ views:
     title: Advanced
     icon: 'mdi:settings'
     cards:
-      - type: horizontal-stack
+      - type: vertical-stack
         cards:
-          - icon_height: 64px
-            type: entity-button
-            tap_action:
-              action: none
-            entity: input_number.out_of_order
-            show_name: true
-            name: Maintenance
-            show_icon: true
-            hold_action:
-              action: more-info
-          - icon_height: 64px
-            type: entity-button
-            tap_action:
-              action: more-info
-            entity: input_datetime.cummulated_flow_start
-            show_name: true
-            name: Reset Cumm. Flow
-            show_icon: true
-            hold_action:
-              action: call-service
-              service: automation.trigger
-              service_data:
-                entity_id: automation.reset_cummulated_flow_start
-          - icon_height: 64px
-            type: entity-button
-            tap_action:
-              action: none
-            entity: input_number.pump_on_for
-            show_name: true
-            name: Filter for ...
-            show_icon: true
-            hold_action:
-              action: more-info
-      - entities:
-          - entity: input_datetime.cummulated_flow_start
-          - entity: sensor.cummulated_flow_high
-          - entity: sensor.cummulated_flow_low
-        type: entities
+          - type: horizontal-stack
+            title: Hold down to activate
+            cards:
+              - icon_height: 64px
+                type: entity-button
+                tap_action:
+                  action: none
+                entity: input_number.out_of_order
+                show_name: true
+                name: Maintenance
+                show_icon: true
+                hold_action:
+                  action: more-info
+              - icon_height: 64px
+                type: entity-button
+                tap_action:
+                  action: more-info
+                entity: input_datetime.cummulated_flow_start
+                show_name: true
+                name: Reset Cumm. Flow
+                show_icon: true
+                hold_action:
+                  action: call-service
+                  service: automation.trigger
+                  service_data:
+                    entity_id: automation.reset_cummulated_flow_start
+              - icon_height: 64px
+                type: entity-button
+                tap_action:
+                  action: none
+                entity: input_number.boost_for
+                show_name: true
+                name: Boost
+                show_icon: true
+                hold_action:
+                  action: more-info
+          - entities:
+              - entity: input_datetime.cummulated_flow_start
+              - entity: sensor.cummulated_flow_high
+              - entity: sensor.cummulated_flow_low
+            type: entities
+          - title: Calibrate Sensors
+            type: horizontal-stack
+            cards:
+              - icon_height: 64px
+                type: entity-button
+                entity: input_number.calibrate_ph
+                show_name: true
+                name: pH
+                show_icon: true
+                hold_action:
+                  action: call-service
+                  confirmation:
+                    text: Are you sure you want to calibrate?
+                  service: script.calibrate_ph
+                footer:
+                  type: markdown
+                  content: note
+              - icon_height: 64px
+                type: entity-button
+                entity: input_number.calibrate_orp
+                show_name: true
+                name: ORP
+                show_icon: true
+                hold_action:
+                  action: call-service
+                  confirmation:
+                    text: Are you sure you want to calibrate?
+                  service: script.calibrate_orp
+              - icon_height: 64px
+                type: entity-button
+                entity: input_number.calibrate_temp
+                show_name: true
+                name: Temp
+                show_icon: true
+                hold_action:
+                  action: call-service
+                  confirmation:
+                    text: Are you sure you want to calibrate?
+                  service: script.calibrate_temp
 

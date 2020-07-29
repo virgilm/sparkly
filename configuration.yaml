@@ -25,3 +25,5 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 lovelace:
   mode: yaml
+shell_command:
+  calibrate: 'python calibrate.py "{{ device }}" "{{ target }}"'
