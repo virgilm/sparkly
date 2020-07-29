@@ -1,0 +1,19 @@
+calibrate_ph:
+  sequence:
+    - service: shell_command.calibrate
+      data_template:
+        device: "ph"
+        target: "{{ states('input_number.calibrate_ph') }}"
+calibrate_orp:
+  sequence:
+    - service: shell_command.calibrate
+      data_template:
+        device: "orp"
+        target: "{{ states('input_number.calibrate_orp') }}"
+calibrate_temp:
+  sequence:
+    - service: shell_command.calibrate
+      data_template:
+        device: "rtd"
+        target: "{{ states('input_number.calibrate_temp') }}"
+

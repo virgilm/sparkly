@@ -21,4 +21,13 @@ input_number:
     unit_of_measurement: 'pH'
     icon: mdi:alpha-h-circle-outline
     mode: box
+  calibrate_ph:
+    min: 6.5
+    max: 8.5
+    step: 0.01
+    unit_of_measurement: 'pH'
+    icon: mdi:alpha-h-circle-outline
+    mode: box
+    initial: 7.4
+
 
