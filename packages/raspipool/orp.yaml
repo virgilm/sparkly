@@ -12,7 +12,7 @@ sensor:
 # For I2C enter the hex device id
     port: 0x62
 #    offset: 78
-    scan_interval: 10
+    scan_interval: 30
 
 input_number:
   calibrate_orp:

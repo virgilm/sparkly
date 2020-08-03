@@ -56,7 +56,7 @@ class AtlasSensor(Entity):
 			   "do": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "d.o.": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "ec": ['conductivity', "EC", 'mdi:alpha-c-circle', 0],
-			   "rtd": [ 'temperature', 'ºC', 'mdi:oil-temperature', 0]}
+			   "rtd": [ 'temperature', 'ºC', 'mdi:oil-temperature', 1]}
 
 		_LOGGER.debug("Checking port %s", port)
 		self.port = int(port,0)

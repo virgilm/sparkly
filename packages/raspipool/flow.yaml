@@ -11,7 +11,7 @@ sensor:
                 low
              {% endif %}
           {% else %}
-             None
+             off
           {% endif %}
 
       remain_cycles:
