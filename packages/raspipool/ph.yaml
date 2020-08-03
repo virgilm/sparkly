@@ -4,14 +4,13 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x63
-    scan_interval: 10
+    scan_interval: 30
 
   - platform: statistics
     name: ph
     entity_id: sensor.ezo_ph
     max_age:
       minutes: 60
-    # precision: 3
 
 input_number:
   ph_target:

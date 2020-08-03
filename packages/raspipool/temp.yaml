@@ -8,24 +8,24 @@ sensor:
         icon_template: mdi:coolant-temperature
         # icon_template: mdi:oil-temperature
         unit_of_measurement: 'ºC'
-  - platform: onewire
-    names:
-      28-0319a2792bc3: Pool water
-    scan_interval: 10
+#  - platform: onewire
+#    names:
+#      28-0319a2792bc3: Pool water
+#    scan_interval: 10
 
 # Atlas Resistance Temperature Detector (RTD)
-#  - platform: atlas_scientific
+  - platform: atlas_scientific
 # For serial ports use:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
-#    port: 0x66
-#    scan_interval: 300
+    port: 0x66
+    scan_interval: 30
 
-#  - platform: statistics
-#    name: pool_water_temperature
-#    entity_id: sensor.ezo_temperature
-#    max_age:
-#      minutes: 60
+  - platform: statistics
+    name: pool_water_temperature
+    entity_id: sensor.ezo_temperature
+    max_age:
+      minutes: 60
 
 input_number:
   calibrate_temp:
