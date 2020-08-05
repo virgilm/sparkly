@@ -16,15 +16,17 @@ from homeassistant.const import (
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
-#from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import TEMP_CELSIUS, TEMP_FAHRENHEIT
 
 _LOGGER = logging.getLogger(__name__)
 CONF_OFFSET = 'offset'
+CONF_SCALE = 'scale'
 # Validation of the user's configuration
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 	vol.Required(CONF_PORT): cv.string,
 	vol.Optional(CONF_NAME, default='ezo'): cv.string,
-	vol.Optional(CONF_OFFSET, default=0.0): vol.Coerce(float)
+	vol.Optional(CONF_OFFSET, default=0.0): vol.Coerce(float),
+	vol.Optional(CONF_SCALE, default=TEMP_CELSIUS): cv.string
 })
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -32,7 +34,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 	add_devices([AtlasSensor(
 		name=config.get(CONF_NAME),
 		port=config.get(CONF_PORT),
-		offset=config.get(CONF_OFFSET)
+		offset=config.get(CONF_OFFSET),
+		scale=config.get(CONF_SCALE)
 	)])
 
 class AtlasSensor(Entity):
@@ -43,12 +46,21 @@ class AtlasSensor(Entity):
 	default_i2dev = "/dev/i2c-1"    # the default bus for I2C on the newer Raspberry Pis, certain older boards use bus 0
 	auto_sleep = 1              # enable auto sleep mode after readings
 
-	def __init__(self, name, port, offset):
+	def __init__(self, name, port, offset, scale):
 		"""Initialize the sensor."""
 		self._state = None
 		self._name = name
 		self._offset = offset
+		# try to convert variations of TEMP_CELSIUS, C, ºC, °C to a unique format
+		lowercase_scale = scale[-1].lower()
+		self._scale = lowercase_scale
 		# Identifiers: [ name (from I?), units, icon, auto_sleep ]
+		if lowercase_scale == 'f':
+			temp_uom = TEMP_FAHRENHEIT
+		else:
+			# default to CELSIUS
+			temp_uom = TEMP_CELSIUS
+		temp = ['temperature', temp_uom, 'mdi:oil-temperature', 1]
 		ezos = {"ph": ['ph', 'pH', 'mdi:alpha-h-circle', 1],
 			   "orp": ['orp', 'mV', 'mdi:alpha-r-circle', 1],
 			   "or": ['orp', 'mV', 'mdi:alpha-r-circle', 1],
@@ -56,7 +68,7 @@ class AtlasSensor(Entity):
 			   "do": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "d.o.": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "ec": ['conductivity', "EC", 'mdi:alpha-c-circle', 0],
-			   "rtd": [ 'temperature', 'ºC', 'mdi:oil-temperature', 1]}
+			   "rtd": temp}
 
 		_LOGGER.debug("Checking port %s", port)
 		self.port = int(port,0)
@@ -101,6 +113,9 @@ class AtlasSensor(Entity):
 					self._name += ("_" + self._ezo_dev)
 					_LOGGER.info("Atlas EZO '%s' version %s detected" % (self._ezo_dev, self._ezo_fwversion ) )
 					break
+		if self._ezo_dev.lower() == 'temperature':
+			# set default temperature scale
+			self.i2c_write("S,{:s}".format(self._scale))
 		if self._ezo_dev is None:
 			_LOGGER.error("Atlas EZO device error or unsupported: "+ezo )
 
@@ -145,6 +160,7 @@ class AtlasSensor(Entity):
 
 	def i2c_write(self, cmd):
 		# appends the null character and sends the string over I2C
+		_LOGGER.debug("I2C write cmd: " + cmd)
 		cmd += "\00"
 		cmd = cmd.encode()
 		return self.file_write.write(cmd)
