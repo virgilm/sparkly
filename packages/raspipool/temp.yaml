@@ -2,12 +2,11 @@ sensor:
   - platform: template
     sensors:
       pool_temp:
-        friendly_name: "water temperature"
+        friendly_name: "Water Temperature"
         entity_id: sensor.pool_water_temperature
         value_template: "{{ states('sensor.pool_water_temperature')|float|round(1) }}"
         icon_template: mdi:coolant-temperature
-        # icon_template: mdi:oil-temperature
-        unit_of_measurement: 'ºC'
+        unit_of_measurement: '°F'
 #  - platform: onewire
 #    names:
 #      28-0319a2792bc3: Pool water
@@ -20,6 +19,7 @@ sensor:
 # For I2C enter the hex device id
     port: 0x66
     scan_interval: 30
+    scale: '°F'
 
   - platform: statistics
     name: pool_water_temperature
@@ -29,10 +29,10 @@ sensor:
 
 input_number:
   calibrate_temp:
-    min: 1
-    max: 50
+    min: 40
+    max: 90
     step: 1
-    unit_of_measurement: 'ºC'
+    unit_of_measurement: '°F'
     icon: mdi:coolant-temperature
     mode: box
-    initial: 20
+    initial: 70

@@ -13,14 +13,14 @@ views:
         cards:
           - type: horizontal-stack
             cards:
-              - max: 35
-                min: 15
+              - max: 90
+                min: 32
                 theme: Backend-selected
                 entity: sensor.pool_temp
                 severity:
-                  green: 27
-                  red: 33
-                  yellow: 31
+                  green: 64
+                  red: 84
+                  yellow: 32
                 name: temp
                 type: gauge
               - max: 8
@@ -144,7 +144,7 @@ views:
               - entity: sensor.orp
                 name: ORP
               - entity: sensor.pool_temp
-                name: water temp.
+                name: Water Temp.
             type: history-graph
             hours_to_show: 3
           - title: last 3 days
@@ -159,7 +159,7 @@ views:
               - entity: sensor.orp
                 name: ORP
               - entity: sensor.pool_temp
-                name: water temp.
+                name: Water Temp.
             type: history-graph
             hours_to_show: 72
   - badges: []
@@ -269,7 +269,7 @@ views:
       - sensor.cycle_pool
       - input_number.out_of_order
     title: Advanced
-    icon: 'mdi:settings'
+    icon: 'mdi:cog'
     cards:
       - type: vertical-stack
         cards:
