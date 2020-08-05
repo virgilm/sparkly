@@ -1,0 +1,8 @@
+{
+    "domain": "sequent_microsystems",
+    "name": "Sequent Microsystems",
+    "documentation": "https://www.example.com",
+    "dependencies": [],
+    "codeowners": [],
+    "requirements": ["lib8relay==1.0.0"]
+  }

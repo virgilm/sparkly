@@ -1,0 +1,13 @@
+switch:
+  - platform: sequent_microsystems
+    name: Relay1
+    relay: 1
+  - platform: sequent_microsystems
+    name: Relay1_on_board_1
+    relay: 1
+    stack: 1 # could not test this
+  - platform: sequent_microsystems
+    name: Relay2_on_board_0_custom_port
+    relay: 2
+    stack: 0 # 0 is default
+    port: 0x60 # not implemented, usually you should be able to change the I2C port.
