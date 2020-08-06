@@ -60,11 +60,10 @@ class AtlasSensor(Entity):
 		else:
 			# default to CELSIUS
 			temp_uom = TEMP_CELSIUS
-		temp = ['temperature', temp_uom, 'mdi:oil-temperature', 1]
+		temp = ['temperature', temp_uom, 'mdi:coolant-temperature', 1]
 		ezos = {"ph": ['ph', 'pH', 'mdi:alpha-h-circle', 1],
 			   "orp": ['orp', 'mV', 'mdi:alpha-r-circle', 1],
 			   "or": ['orp', 'mV', 'mdi:alpha-r-circle', 1],
-			   "orp": ['orp', 'mV', 'mdi:alpha-r-circle', 1],
 			   "do": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "d.o.": ['dissolved_oxygen','mV', 'mdi:alpha-x-circle', 0],
 			   "ec": ['conductivity', "EC", 'mdi:alpha-c-circle', 0],
