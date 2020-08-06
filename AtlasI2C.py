@@ -141,7 +141,9 @@ class AtlasI2C:
 
         if is_valid:
             char_list = self.handle_raspi_glitch(response[1:])
-            result = "Success " + self.get_device_info() + ": " +  str(''.join(char_list))
+            # get rid of unwanted null chars
+            string_response = str(''.join(char_list)).replace('\x00','')
+            result = "Success " + self.get_device_info() + ": " + string_response
             #result = "Success: " +  str(''.join(char_list))
         else:
             result = "Error " + self.get_device_info() + ": " + error_code
@@ -162,13 +164,16 @@ class AtlasI2C:
         write a command to the board, wait the correct timeout,
         and read the response
         '''
+        print("QUERRY " + command)
         self.write(command)
         current_timeout = self.get_command_timeout(command=command)
         if not current_timeout:
             return "sleep mode"
         else:
             time.sleep(current_timeout)
-            return self.read()
+            response = self.read()
+            print("RESPONSE " + response)
+            return response
 
     def close(self):
         self.file_read.close()
