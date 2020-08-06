@@ -18,39 +18,39 @@ views:
                 theme: Backend-selected
                 entity: sensor.pool_temp
                 severity:
-                  green: 64
-                  red: 84
-                  yellow: 32
+                  red: 32
+                  green: 60
+                  yellow: 84
                 name: temp
                 type: gauge
-              - max: 8
+              - max: 8.5
                 min: 6.5
                 theme: Backend-selected
                 entity: sensor.ph
                 severity:
-                  green: 6.95
-                  red: 7.75
-                  yellow: 7.35
+                  yellow: 6.8
+                  green: 7.2
+                  red: 7.8
                 name: ph
                 type: gauge
-              - max: 1999
-                min: -1999
+              - max: 1200
+                min: 0
                 theme: Backend-selected
-                entity: sensor.orp
+                entity: sensor.ezo_orp
                 severity:
-                  green: 650
-                  red: 800
-                  yellow: 600
+                  green: 500
+                  yellow: 800
+                  red: 100
                 name: orp
                 type: gauge
           - show_name: false
             entities:
-              - entity: sensor.pool_temp
+              - entity: sensor.ezo_temperature
                 hold_action:
                   action: call-service
                   service: homeassistant.update_entity
                   service_data:
-                    entity_id: sensor.pool_temp
+                    entity_id: sensor.ezo_temperature
               - entity: sensor.ezo_ph
                 hold_action:
                   action: call-service
