@@ -27,3 +27,5 @@ lovelace:
   mode: yaml
 shell_command:
   calibrate: 'python calibrate.py "{{ device }}" "{{ target }}"'
+system_log:
+   max_entries: 500

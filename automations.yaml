@@ -26,10 +26,9 @@
   condition: []
   action:
   - data_template:
-      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'pH high ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
+      title: 'pH high ({{trigger.to_state.state}})!'
+    service: notify.notify
 
 - alias: ph_low
   id: '1559049839760'
@@ -43,10 +42,9 @@
   condition: []
   action:
   - data_template:
-      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'pH low ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
+      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
+      title: 'pH low ({{trigger.to_state.state}})!'
+    service: notify.notify
 
 - alias: ph_bad
   id: '1559049893756'
@@ -56,11 +54,13 @@
     value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
   condition: []
   action:
-  - service: notify.pushbullet
+  - service: notify.notify
     data_template:
-      message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-        "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'pH probe bad (calibrate?) !!!'
+      message: 'It varied between {{state_attr("sensor.ph", "min_value")}} and 
+        {{state_attr("sensor.ph", "max_value")}} over the past 
+        {{(state_attr("sensor.ph", "sampling_size")*30/60)|int}} minutes'
+        # scan_interval: 30 is the scan_interval for the orp probe (orp.yaml) 
+      title: 'pH probe may need calibration!'
   - service: automation.turn_off
     entity_id: automation.ph_bad
 
@@ -99,10 +99,13 @@
     value_template: '{{state_attr("sensor.orp", "standard_deviation") > 20 }}'
   condition: []
   action:
-  - service: notify.pushbullet
+  - service: notify.notify
     data_template:
-      message: 'Between {{state_attr("sensor.orp", "min_value")}} and {{state_attr("sensor.orp", "max_value")}}{{- "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'ORP probe bad (calibrate?) !!!'
+      message: 'It varied between {{state_attr("sensor.orp", "min_value")}} and 
+        {{state_attr("sensor.orp", "max_value")}} over the past 
+        {{(state_attr("sensor.orp", "sampling_size")*30/60)|int}} minutes'
+        # scan_interval: 30 is the scan_interval for the orp probe (orp.yaml) 
+      title: 'ORP probe may need calibration!'
   - service: automation.turn_off
     entity_id: automation.orp_bad
 
@@ -130,8 +133,8 @@
   action:
   - data_template:
       message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Bleach tank low ({{states('input_number.bleach_tank')|float}} liters )!!!"
-    service: notify.pushbullet
+      title: "Bleach tank low ({{states('input_number.bleach_tank')|float}} liters )!"
+    service: notify.notify
 
 - alias: bleach_high
   id: '1559049844490'
@@ -147,8 +150,8 @@
     service: input_boolean.turn_on
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Bleach inject blocked ({{states('input_number.notify_bleach_high')}} in 48 hours)!!!"
-    service: notify.pushbullet
+      title: "Bleach inject blocked ({{states('input_number.notify_bleach_high')}} in 48 hours)!"
+    service: notify.notify
 
 - alias: bleach_set
   id: '1559149839459'
@@ -179,15 +182,15 @@
     service: switch.turn_on
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Bleach injection: ({{states('input_number.bleach_inject')}} ml)!!!"
-    service: notify.pushbullet
+      title: "Bleach injection: ({{states('input_number.bleach_inject')}} ml)!"
+    service: notify.notify
   - delay: 00:00:{{ [0 , 60 * states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }}
   - entity_id: switch.orp
     service: switch.turn_off
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Bleach injection end!!!"
-    service: notify.pushbullet
+      title: "Bleach injection end!"
+    service: notify.notify
 
 #FC Section
 - alias: fc_ok
@@ -272,8 +275,8 @@
   action:
   - data_template:
       message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Muriatic tank low ({{states('input_number.muriatic_tank')|float}} liters )!!!"
-    service: notify.pushbullet
+      title: "Muriatic tank low ({{states('input_number.muriatic_tank')|float}} liters )!"
+    service: notify.notify
 
 - alias: muriatic_high
   id: '1559049844489'
@@ -289,8 +292,8 @@
     service: input_boolean.turn_on
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Muriatic inject blocked ({{states('input_number.notify_muriatic_high')}} in 48 hours)!!!"
-    service: notify.pushbullet
+      title: "Muriatic inject blocked ({{states('input_number.notify_muriatic_high')}} in 48 hours)!"
+    service: notify.notify
 
 - alias: muriatic_set
   id: '1559049844459'
@@ -321,15 +324,15 @@
     service: switch.turn_on
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Muriatic injection: ({{states('input_number.muriatic_inject')}} ml)!!!"
-    service: notify.pushbullet
+      title: "Muriatic injection: ({{states('input_number.muriatic_inject')}} ml)!"
+    service: notify.notify
   - delay: 00:00:{{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }}
   - entity_id: switch.ph
     service: switch.turn_off
   - data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Muriatic injection end!!!"
-    service: notify.pushbullet
+      title: "Muriatic injection end!"
+    service: notify.notify
 
 
 # Pump Section
@@ -517,8 +520,8 @@
   action:
   - data_template:
       message: "in low speed: {{state_attr('sensor.cummulated_flow_low','value')}}{{'\n'}}in high speed: {{state_attr('sensor.cummulated_flow_high','value')}}{{'\n'}}@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Flow: {{states('input_number.notify_cycles')|int}} cycles reached!!!"
-    service: notify.pushbullet
+      title: "Flow: {{states('input_number.notify_cycles')|int}} cycles reached!"
+    service: notify.notify
 
 - alias: reset_cummulated_flow_start
   id: '1559293506609'
@@ -549,8 +552,8 @@
   action:
   - data_template:
       message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: 'Winter is comming!!!'
-    service: notify.pushbullet
+      title: 'Winter is comming!'
+    service: notify.notify
 
 - alias: summer_session
   id: '1559049956785'
@@ -568,8 +571,8 @@
   action:
   - data_template:
       message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Summer is here!!!"
-    service: notify.pushbullet
+      title: "Summer is here!"
+    service: notify.notify
 
 
 - alias: factory_started
@@ -646,8 +649,8 @@
   - data_template:
       message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
         "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'temperature low ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
+      title: 'temperature low ({{trigger.to_state.state}})!'
+    service: notify.notify
 
 - alias: temp_high
   id: '1559049959765'
@@ -663,6 +666,6 @@
   - data_template:
       message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
         "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-      title: 'temperature high ({{trigger.to_state.state}})!!!'
-    service: notify.pushbullet
+      title: 'temperature high ({{trigger.to_state.state}})!'
+    service: notify.notify
 

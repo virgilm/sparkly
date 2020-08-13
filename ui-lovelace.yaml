@@ -21,7 +21,7 @@ views:
                   red: 32
                   green: 60
                   yellow: 84
-                name: temp
+                name: Temp
                 type: gauge
               - max: 8.5
                 min: 6.5
@@ -31,7 +31,7 @@ views:
                   yellow: 6.8
                   green: 7.2
                   red: 7.8
-                name: ph
+                name: pH
                 type: gauge
               - max: 1200
                 min: 0
@@ -41,7 +41,7 @@ views:
                   green: 500
                   yellow: 800
                   red: 100
-                name: orp
+                name: ORP
                 type: gauge
           - show_name: false
             entities:
@@ -106,7 +106,7 @@ views:
                   action: toggle
               - entity: binary_sensor.muriatic
                 hold_action:
-                  action: call-service
+                  action: call_service
                   service: switch.toggle
                   service_data:
                     entity_id: switch.ph
@@ -127,11 +127,8 @@ views:
             show_icon: true
   - badges: []
     title: History
-    panel: true
     icon: 'mdi:chart-line'
     cards:
-      - type: horizontal-stack
-        cards:
           - title: last 3 hours
             entities:
               - entity: sensor.pump_state
@@ -164,14 +161,10 @@ views:
             hours_to_show: 72
   - badges: []
     title: Chemical
-    panel: true
     icon: 'mdi:flask'
     cards:
-      - type: horizontal-stack
-        cards:
-          - entities:
-              - label: Muriatic ( - pH )
-                type: section
+          - title: Muriatic Acid ( - pH )
+            entities:
               - entity: input_number.muriatic_tank
                 name: Tank level
               - entity: input_number.muriatic_concentration
@@ -185,9 +178,8 @@ views:
                 name: Lock Pump
             type: entities
             show_header_toggle: false
-          - entities:
-              - label: Bleach ( + ORP )
-                type: section
+          - title: Bleach ( + ORP )
+            entities:
               - entity: input_number.bleach_tank
                 name: Tank level
               - entity: input_number.bleach_concentration
@@ -323,6 +315,7 @@ views:
                 show_name: true
                 name: pH
                 show_icon: true
+                show_state: true
                 hold_action:
                   action: call-service
                   confirmation:
@@ -337,6 +330,7 @@ views:
                 show_name: true
                 name: ORP
                 show_icon: true
+                show_state: true
                 hold_action:
                   action: call-service
                   confirmation:
@@ -348,6 +342,7 @@ views:
                 show_name: true
                 name: Temp
                 show_icon: true
+                show_state: true
                 hold_action:
                   action: call-service
                   confirmation:
