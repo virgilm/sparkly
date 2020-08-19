@@ -99,14 +99,16 @@ views:
           - show_name: true
             entities:
               - entity: switch.pump
+                icon: mdi:engine
                 hold_action:
                   action: toggle
               - entity: switch.turbo
+                icon: mdi:speedometer
                 hold_action:
                   action: toggle
               - entity: binary_sensor.muriatic
                 hold_action:
-                  action: call_service
+                  action: call-service
                   service: switch.toggle
                   service_data:
                     entity_id: switch.ph
@@ -175,7 +177,7 @@ views:
                 name: Pump injection
                 secondary_info: last-changed
               - entity: input_boolean.lock_muriatic
-                name: Lock Pump
+                name: Disable Automatic Injection
             type: entities
             show_header_toggle: false
           - title: Bleach ( + ORP )
@@ -190,7 +192,7 @@ views:
                 name: Pump injection
                 secondary_info: last-changed
               - entity: input_boolean.lock_bleach
-                name: Lock Pump
+                name: Disable Automatic Injection
             type: entities
             show_header_toggle: false
   - badges: []
