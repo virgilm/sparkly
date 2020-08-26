@@ -16,7 +16,7 @@ views:
               - max: 90
                 min: 32
                 theme: Backend-selected
-                entity: sensor.pool_temp
+                entity: sensor.pool_water_temperature
                 severity:
                   red: 32
                   green: 60
@@ -36,7 +36,7 @@ views:
               - max: 1200
                 min: 0
                 theme: Backend-selected
-                entity: sensor.ezo_orp
+                entity: sensor.orp
                 severity:
                   green: 500
                   yellow: 800
@@ -142,7 +142,7 @@ views:
                 name: pH
               - entity: sensor.orp
                 name: ORP
-              - entity: sensor.pool_temp
+              - entity: sensor.pool_temp_fahrenheit
                 name: Water Temp.
             type: history-graph
             hours_to_show: 3
@@ -157,7 +157,7 @@ views:
                 name: pH
               - entity: sensor.orp
                 name: ORP
-              - entity: sensor.pool_temp
+              - entity: sensor.pool_temp_fahrenheit
                 name: Water Temp.
             type: history-graph
             hours_to_show: 72

@@ -3,6 +3,15 @@ sensor:
     sensors:
       pool_temp:
         friendly_name: "Water Temperature"
+        entity_id: sensor.pool_temp_fahrenheit
+        value_template: "{{ ((states('sensor.pool_temp_fahrenheit')|float - 32)*5/9)|round(1) }}"
+        icon_template: mdi:coolant-temperature
+        unit_of_measurement: '°C'
+
+  - platform: template
+    sensors:
+      pool_temp_fahrenheit:
+        friendly_name: "Water Temperature"
         entity_id: sensor.pool_water_temperature
         value_template: "{{ states('sensor.pool_water_temperature')|float|round(1) }}"
         icon_template: mdi:coolant-temperature
@@ -26,6 +35,7 @@ sensor:
     entity_id: sensor.ezo_temperature
     max_age:
       minutes: 60
+    precision: 1
 
 input_number:
   calibrate_temp:
