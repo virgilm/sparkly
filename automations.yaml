@@ -162,7 +162,7 @@
   - service: input_number.set_value
     data_template:
       entity_id: input_number.bleach_inject
-      value: " {{ ( states('input_number.capacity')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
+      value: " {{ ( states('sensor.capacity')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
 
 - alias: bleach_inject
   id: '1559149426435'
@@ -175,7 +175,7 @@
     state: 'off'
   - condition: numeric_state
     entity_id: input_number.bleach_inject
-    value_template: "{{ states('input_number.bleach_inject')|float / states('input_number.capacity')|float }}"
+    value_template: "{{ states('input_number.bleach_inject')|float / states('sensor.capacity')|float }}"
     above: 10.0
     below: 200.0
   - entity_id: switch.orp
@@ -304,7 +304,7 @@
   - service: input_number.set_value
     data_template:
       entity_id: input_number.muriatic_inject
-      value: " {{ ( states('input_number.capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
+      value: " {{ ( states('sensor.capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
 
 - alias: muriatic_inject
   id: '1559949826459'
@@ -317,7 +317,7 @@
     state: 'off'
   - condition: numeric_state
     entity_id: input_number.muriatic_inject
-    value_template: "{{ states('input_number.muriatic_inject')|float / states('input_number.capacity')|float }}"
+    value_template: "{{ states('input_number.muriatic_inject')|float / states('sensor.capacity')|float }}"
     above: 5.0
     below: 100.0
   - entity_id: switch.ph
@@ -591,7 +591,7 @@
       entity_id: input_boolean.factory_started
   - service: input_number.set_value
     data_template:
-      entity_id: input_number.capacity
+      entity_id: input_number.capacity_metric
       value: 50
   - service: input_number.set_value
     data_template:
