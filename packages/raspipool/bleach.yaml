@@ -42,16 +42,18 @@ input_number:
     unit_of_measurement: 'ml/min'
     icon: mdi:needle
   notify_bleach_high:
+    name: Bleach Overfeed
     min: 0
     max: 15
     step: 0.1
     unit_of_measurement: 'l/48h'
   notify_bleach_tank:
-     min: 0
-     max: 5
-     step: 0.5
-     unit_of_measurement: 'l'
-     icon: mdi:flask-empty-outline
+    name: Bleach Tank Low
+    min: 0
+    max: 5
+    step: 0.5
+    unit_of_measurement: 'l'
+    icon: mdi:flask-empty-outline
   bleach_inject:
     min: 0
     max: 20000

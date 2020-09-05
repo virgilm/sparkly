@@ -5,7 +5,7 @@ notify:
 
 input_boolean:
   notify_seasson:
-    name: Notify seasson changes
+    name: Seasson Change
     icon: mdi:comment-alert
 
 

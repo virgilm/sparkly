@@ -11,7 +11,8 @@ views:
     cards:
       - type: vertical-stack
         cards:
-          - type: horizontal-stack
+          - title: Status
+            type: horizontal-stack
             cards:
               - max: 90
                 min: 32
@@ -43,6 +44,24 @@ views:
                   red: 100
                 name: ORP
                 type: gauge
+          - type: horizontal-stack
+            cards:
+              - max: 10
+                min: 0
+                theme: default
+                entity: sensor.flow_rate
+                severity:
+                  green: 0
+                  red: 8
+                  yellow: 5
+                name: Flow
+                type: gauge
+              - type: button
+                entity: binary_sensor.flow_on_icon
+                tap_action:
+                  action: none
+                hold_action:
+                  action: none
           - show_name: false
             entities:
               - entity: sensor.ezo_temperature
@@ -76,7 +95,7 @@ views:
                   green: 15
                   red: 5
                   yellow: 10
-                name: remain cycles
+                name: Cycles Left
                 type: gauge
               - max: 10
                 min: 0
@@ -203,11 +222,11 @@ views:
       - title: Notifications
         entities:
           - entity: input_number.notify_cycles
-          - entity: input_boolean.notify_seasson
           - entity: input_number.notify_muriatic_high
           - entity: input_number.notify_muriatic_tank
-          - entity: input_number.notify_bleach_tank
           - entity: input_number.notify_bleach_high
+          - entity: input_number.notify_bleach_tank
+          - entity: input_boolean.notify_seasson
         type: entities
         show_header_toggle: true
   - badges: []

@@ -43,6 +43,51 @@ sensor:
     start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
     end: "{{ now() }}"
 
+  - platform: statistics
+    name: flow_on
+    entity_id: binary_sensor.watermeter
+    max_age:
+      seconds: 5
+    sampling_size: 1
+    precision: 0
+
+  - platform: statistics
+    name: pulses_per_minute
+    entity_id: binary_sensor.watermeter
+    max_age:
+      minutes: 1
+    sampling_size: 760 # max 2 * 38 * 10 L/min
+    precision: 0
+  
+  - platform: template
+    sensors:
+      flow_rate:
+        friendly_name: "Flow Rate"
+        value_template: >-
+          {{(states('sensor.pulses_per_minute')|int / 76)|float|round(1)}}
+        unit_of_measurement: 'L/min'
+        entity_id: 
+        - sensor.pulses_per_minute
+
+binary_sensor:
+  - platform: rpi_gpio
+    ports:
+      14: watermeter
+
+  - platform: template
+    sensors:
+      flow_on_icon:
+        friendly_name: "Flow Cell State"
+        entity_id: sensor.flow_on
+        value_template: "{{ states('sensor.flow_on')|int == 1 }}"
+        icon_template: >-
+          {% if states('sensor.flow_on')|int == 1 %}
+            mdi:water
+          {% else %}
+            mdi:water-off
+          {% endif %}
+
+
 input_datetime:
   cummulated_flow_start:
     name: Cummulated Flow Start
@@ -52,7 +97,7 @@ input_datetime:
 
 input_number:
   notify_cycles:
-    name: Notify cycles flow
+    name: Low Cycle Count
     icon: mdi:timer-outline
     min: 0
     max: 100
