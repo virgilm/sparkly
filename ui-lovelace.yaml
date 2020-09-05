@@ -153,37 +153,6 @@ views:
                     green: 5
                     red: 0
                     yellow: 2
-          - title: Test Conditional
-            type: horizontal-stack
-            cards:
-              - type: conditional
-                conditions:
-                  - entity: input_boolean.imperial
-                    state: "on"
-                card:
-                  type: gauge
-                  entity: input_number.bleach_tank
-                  max: 76
-                  min: 0
-                  theme: default
-                  severity:
-                    green: 20
-                    red: 0
-                    yellow: 5
-              - type: conditional
-                conditions:
-                  - entity: input_boolean.imperial
-                    state: "on"
-                card:
-                  type: gauge
-                  entity: input_number.bleach_tank_imperial
-                  max: 20
-                  min: 0
-                  theme: default
-                  severity:
-                    green: 5
-                    red: 0
-                    yellow: 2
           - show_name: true
             entities:
               - entity: switch.pump
