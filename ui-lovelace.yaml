@@ -97,24 +97,93 @@ views:
                   yellow: 10
                 name: Cycles Left
                 type: gauge
-              - max: 10
-                min: 0
-                theme: default
-                entity: sensor.muriatic_tank
-                severity:
-                  green: 5
-                  red: 1
-                  yellow: 3
-                type: gauge
-              - max: 15
-                min: 0
-                theme: default
-                entity: sensor.bleach_tank
-                severity:
-                  green: 8
-                  red: 0
-                  yellow: 3
-                type: gauge
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state_not: "on"
+                card:
+                  type: gauge
+                  entity: input_number.muriatic_tank
+                  max: 76
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 20
+                    red: 0
+                    yellow: 5
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                card:
+                  type: gauge
+                  entity: input_number.muriatic_tank_imperial
+                  max: 20
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 5
+                    red: 0
+                    yellow: 2
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state_not: "on"
+                card:
+                  type: gauge
+                  entity: input_number.bleach_tank
+                  max: 76
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 20
+                    red: 0
+                    yellow: 5
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                card:
+                  type: gauge
+                  entity: input_number.bleach_tank_imperial
+                  max: 20
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 5
+                    red: 0
+                    yellow: 2
+          - title: Test Conditional
+            type: horizontal-stack
+            cards:
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                card:
+                  type: gauge
+                  entity: input_number.bleach_tank
+                  max: 76
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 20
+                    red: 0
+                    yellow: 5
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                card:
+                  type: gauge
+                  entity: input_number.bleach_tank_imperial
+                  max: 20
+                  min: 0
+                  theme: default
+                  severity:
+                    green: 5
+                    red: 0
+                    yellow: 2
           - show_name: true
             entities:
               - entity: switch.pump
@@ -186,10 +255,27 @@ views:
     cards:
           - title: Muriatic Acid ( - pH )
             entities:
-              - entity: input_number.muriatic_tank
-                name: Tank level
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state_not: "on"
+                row:
+                  entity: input_number.muriatic_tank
+                  theme: default
+                  name: Tank Level (l)
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                row:
+                  entity: input_number.muriatic_tank_imperial
+                  theme: default
+                  unit: gal
+                  name: Tank Level (gal)
+#              - entity: input_number.muriatic_tank
+#                name: Tank level
               - entity: input_number.muriatic_concentration
-                name: Concentration
+                name: Concentration (%)
               - entity: input_number.muriatic_speed
                 name: Speed injection
               - entity: switch.ph
@@ -199,12 +285,29 @@ views:
                 name: Disable Automatic Injection
             type: entities
             show_header_toggle: false
-          - title: Bleach ( + ORP )
+          - title: Sanitizer ( + ORP )
             entities:
-              - entity: input_number.bleach_tank
-                name: Tank level
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state_not: "on"
+                row:
+                  entity: input_number.bleach_tank
+                  theme: default
+                  name: Tank Level (l)
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                row:
+                  entity: input_number.bleach_tank_imperial
+                  theme: default
+                  unit: gal
+                  name: Tank Level (gal)
+#              - entity: input_number.bleach_tank
+#                name: Tank level
               - entity: input_number.bleach_concentration
-                name: Concentration
+                name: Concentration (%)
               - entity: input_number.bleach_speed
                 name: Speed injection
               - entity: switch.orp
