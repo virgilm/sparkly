@@ -58,7 +58,7 @@ sensor:
       minutes: 1
     sampling_size: 760 # max 2 * 38 * 10 L/min
     precision: 0
-  
+
   - platform: template
     sensors:
       flow_rate:
@@ -66,7 +66,7 @@ sensor:
         value_template: >-
           {{(states('sensor.pulses_per_minute')|int / 76)|float|round(1)}}
         unit_of_measurement: 'L/min'
-        entity_id: 
+        entity_id:
         - sensor.pulses_per_minute
 
 binary_sensor:
