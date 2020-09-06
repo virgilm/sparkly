@@ -6,6 +6,8 @@ homeassistant:
   unit_system: imperial
   # customize: !include customize.yaml
   packages: !include_dir_named packages
+  external_url: "http://ivmcontrol.dscloud.me:8123"
+  internal_url: "http://homeassistant.local:8123"
 default_config:
 # Disable Discover some devices automatically
 # discovery:

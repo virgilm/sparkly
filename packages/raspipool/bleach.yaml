@@ -45,19 +45,27 @@ input_number:
     unit_of_measurement: '%'
     icon: mdi:water-percent
   bleach_speed:
-    min: 10
-    max: 100
+    min: 0
+    max: 263
     step: 1
     unit_of_measurement: 'ml/min'
     icon: mdi:needle
+    mode: box
+  bleach_speed_imperial:
+    min: 0.1
+    max: 100
+    step: 0.1
+    unit_of_measurement: 'gal/day (GPD)'
+    icon: mdi:needle
+    mode: box
   notify_bleach_high:
-    name: Bleach Overfeed
+    name: Chlorine Overfeed
     min: 0
     max: 15
     step: 0.1
     unit_of_measurement: 'l/48h'
   notify_bleach_tank:
-    name: Bleach Tank Low
+    name: Chlorine Tank Low
     min: 0
     max: 5
     step: 0.5
@@ -93,3 +101,25 @@ automation:
         data_template:
           entity_id: input_number.bleach_tank
           value: "{{(states('input_number.bleach_tank_imperial')|float * 3.78541)| round(1) }}"
+
+  - alias: bleach_inj_sync_1
+    trigger:
+      - platform: state
+        entity_id: input_number.bleach_speed
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_speed_imperial
+          value: "{{(states('input_number.bleach_speed')|float / 2.6287)| round(1) }}"
+
+  - alias: bleach_inj_sync_2
+    trigger:
+      - platform: state
+        entity_id: input_number.bleach_speed_imperial
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_speed
+          value: "{{(states('input_number.bleach_speed_imperial')|float * 2.6287)| round(1) }}"

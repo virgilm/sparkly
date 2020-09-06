@@ -222,7 +222,7 @@ views:
     title: Chemical
     icon: 'mdi:flask'
     cards:
-          - title: Muriatic Acid ( - pH )
+          - title: Muriatic Acid ( decrease pH )
             entities:
               - type: conditional
                 conditions:
@@ -245,47 +245,101 @@ views:
 #                name: Tank level
               - entity: input_number.muriatic_concentration
                 name: Concentration (%)
-              - entity: input_number.muriatic_speed
-                name: Speed injection
-              - entity: switch.ph
-                name: Pump injection
-                secondary_info: last-changed
-              - entity: input_boolean.lock_muriatic
-                name: Disable Automatic Injection
-            type: entities
-            show_header_toggle: false
-          - title: Sanitizer ( + ORP )
-            entities:
               - type: conditional
                 conditions:
                   - entity: input_boolean.imperial
                     state_not: "on"
                 row:
-                  entity: input_number.bleach_tank
+                  entity: input_number.muriatic_speed
                   theme: default
-                  name: Tank Level (l)
+                  unit: ml/min
+                  name: Acid Injection (ml/min)
               - type: conditional
                 conditions:
                   - entity: input_boolean.imperial
                     state: "on"
                 row:
-                  entity: input_number.bleach_tank_imperial
+                  entity: input_number.muriatic_speed_imperial
                   theme: default
-                  unit: gal
-                  name: Tank Level (gal)
-#              - entity: input_number.bleach_tank
-#                name: Tank level
-              - entity: input_number.bleach_concentration
-                name: Concentration (%)
-              - entity: input_number.bleach_speed
-                name: Speed injection
-              - entity: switch.orp
-                name: Pump injection
+                  unit: GPD
+                  name: Acid Injection (GPD)
+              - entity: switch.ph
+                name: Acid Injection Pump
                 secondary_info: last-changed
-              - entity: input_boolean.lock_bleach
+              - entity: input_boolean.lock_muriatic
                 name: Disable Automatic Injection
             type: entities
             show_header_toggle: false
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state_not: "on"
+            card:
+              title: Sanitizer ( increase ORP )
+              entities:
+                - type: conditional
+                  conditions:
+                    - entity: input_boolean.imperial
+                      state_not: "on"
+                  row:
+                    entity: input_number.bleach_tank
+                    theme: default
+                    unit: l
+                    name: Tank Level (l)
+                - type: conditional
+                  conditions:
+                    - entity: input_boolean.imperial
+                      state: "on"
+                  row:
+                    entity: input_number.bleach_tank_imperial
+                    theme: default
+                    unit: gal
+                    name: Tank Level (gal)
+  #              - entity: input_number.bleach_tank
+  #                name: Tank level
+                - entity: input_number.bleach_concentration
+                  name: Concentration (%)
+                - type: conditional
+                  conditions:
+                    - entity: input_boolean.imperial
+                      state_not: "on"
+                  row:
+                    entity: input_number.bleach_speed
+                    theme: default
+                    unit: ml/min
+                    name: Chlorine Injection (ml/min)
+                - type: conditional
+                  conditions:
+                    - entity: input_boolean.imperial
+                      state: "on"
+                  row:
+                    entity: input_number.bleach_speed_imperial
+                    theme: default
+                    unit: GPD
+                    name: Chlorine Injection (GPD)
+#                - entity: input_number.bleach_speed
+#                  name: Speed injection
+                - entity: switch.orp
+                  name: Chlorine Injection Pump
+                  secondary_info: last-changed
+                - entity: input_boolean.lock_bleach
+                  name: Disable Automatic Injection
+              type: entities
+              show_empty: false
+              show_header_toggle: false
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state: "on"
+            card:
+              title: Salt System ( increase ORP )
+              entities:
+                - entity: input_number.bleach_concentration
+                  name: Concentration (%)
+                - entity: input_number.bleach_speed
+                  name: Speed injection
+              type: entities
+              show_header_toggle: false
   - badges: []
     path: default_view
     icon: 'mdi:message-alert'
@@ -294,8 +348,44 @@ views:
       - title: Notifications
         entities:
           - entity: input_number.notify_cycles
-          - entity: input_number.notify_muriatic_high
-          - entity: input_number.notify_muriatic_tank
+#          - entity: input_number.notify_muriatic_high
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            row:
+              entity: input_number.notify_muriatic_high
+              theme: default
+              unit: l/48h
+              name: Acid Overfeed (l/48h)
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            row:
+              entity: input_number.notify_muriatic_high_imperial
+              theme: default
+              unit: gal/48h
+              name: Acid Overfeed (gal/48h)
+#          - entity: input_number.notify_muriatic_tank
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            row:
+              entity: input_number.notify_muriatic_tank
+              theme: default
+              unit: l
+              name: Tank Low (l)
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            row:
+              entity: input_number.notify_muriatic_tank_imperial
+              theme: default
+              unit: gal
+              name: Tank Low (gal)
           - entity: input_number.notify_bleach_high
           - entity: input_number.notify_bleach_tank
           - entity: input_boolean.notify_seasson
@@ -309,8 +399,23 @@ views:
         entities:
           - label: Pool
             type: section
-          - entity: input_number.capacity_imperial
-            name: Capacity
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            row:
+              entity: input_number.capacity_metric
+              theme: default
+              name: Pool Capacity (m³)
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            row:
+              entity: input_number.capacity_imperial
+              theme: default
+              unit: gal
+              name: Pool Capacity (gallons)
           - entity: input_number.quality
             name: Quality
           - entity: input_datetime.recirculation
