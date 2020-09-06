@@ -192,9 +192,9 @@ views:
             entities:
               - entity: sensor.pump_state
               - entity: switch.orp
-                name: Bleach inj.
+                name: Chlorine inj.
               - entity: switch.ph
-                name: Muriatic inj.
+                name: Acid inj.
               - entity: sensor.ph
                 name: pH
               - entity: sensor.orp
@@ -207,9 +207,9 @@ views:
             entities:
               - entity: sensor.pump_state
               - entity: switch.orp
-                name: Bleach inj.
+                name: Chlorine inj.
               - entity: switch.ph
-                name: Muriatic inj.
+                name: Acid inj.
               - entity: sensor.ph
                 name: pH
               - entity: sensor.orp
@@ -253,7 +253,7 @@ views:
                   entity: input_number.muriatic_speed
                   theme: default
                   unit: ml/min
-                  name: Acid Injection (ml/min)
+                  name: Injection Speed (ml/min)
               - type: conditional
                 conditions:
                   - entity: input_boolean.imperial
@@ -262,7 +262,7 @@ views:
                   entity: input_number.muriatic_speed_imperial
                   theme: default
                   unit: GPD
-                  name: Acid Injection (GPD)
+                  name: Injection Speed (GPD)
               - entity: switch.ph
                 name: Acid Injection Pump
                 secondary_info: last-changed
@@ -307,7 +307,7 @@ views:
                     entity: input_number.bleach_speed
                     theme: default
                     unit: ml/min
-                    name: Chlorine Injection (ml/min)
+                    name: Injection Speed (ml/min)
                 - type: conditional
                   conditions:
                     - entity: input_boolean.imperial
@@ -316,7 +316,7 @@ views:
                     entity: input_number.bleach_speed_imperial
                     theme: default
                     unit: GPD
-                    name: Chlorine Injection (GPD)
+                    name: Injection Speed (GPD)
 #                - entity: input_number.bleach_speed
 #                  name: Speed injection
                 - entity: switch.orp
@@ -376,7 +376,7 @@ views:
               entity: input_number.notify_muriatic_tank
               theme: default
               unit: l
-              name: Tank Low (l)
+              name: Acid Tank Low (l)
           - type: conditional
             conditions:
               - entity: input_boolean.imperial
@@ -385,9 +385,45 @@ views:
               entity: input_number.notify_muriatic_tank_imperial
               theme: default
               unit: gal
-              name: Tank Low (gal)
-          - entity: input_number.notify_bleach_high
-          - entity: input_number.notify_bleach_tank
+              name: Acid Tank Low (gal)
+#          - entity: input_number.notify_bleach_high
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            row:
+              entity: input_number.notify_bleach_high
+              theme: default
+              unit: l/48h
+              name: Chlorine Overfeed (l/48h)
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            row:
+              entity: input_number.notify_bleach_high_imperial
+              theme: default
+              unit: gal/48h
+              name: Chlorine Overfeed (gal/48h)
+#          - entity: input_number.notify_bleach_tank
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            row:
+              entity: input_number.notify_bleach_tank
+              theme: default
+              unit: l
+              name: Chlorine Tank Low (l)
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            row:
+              entity: input_number.notify_bleach_tank_imperial
+              theme: default
+              unit: gal
+              name: Chlorine Tank Low (gal)
           - entity: input_boolean.notify_seasson
         type: entities
         show_header_toggle: true
@@ -450,7 +486,7 @@ views:
           - entity: sensor.ph
             name: pH actual
           - entity: input_number.muriatic_inject
-            name: Next muriatic injection (ml)
+            name: Next Acid Injection (ml)
         type: entities
         show_header_toggle: false
   - badges:

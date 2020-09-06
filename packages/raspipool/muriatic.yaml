@@ -2,7 +2,7 @@ sensor:
   - platform: template
     sensors:
       muriatic_tank:
-        friendly_name: "Muriatic tank"
+        friendly_name: "Acid tank"
         value_template: "{{ states('input_number.muriatic_tank')|round(2)}}"
 
   - platform: history_stats
@@ -62,13 +62,13 @@ input_number:
   notify_muriatic_high:
     name: Acid Overfeed
     min: 0
-    max: 8
+    max: 15.2
     step: 0.1
     unit_of_measurement: 'l/48h'
   notify_muriatic_high_imperial:
     name: Acid Overfeed
     min: 0
-    max: 2
+    max: 4
     step: 0.1
     unit_of_measurement: 'gal/48h'
   notify_muriatic_tank:
@@ -212,13 +212,13 @@ automation:
     condition: []
     action:
     - data_template:
+        title: "Muriatic Tank Low!"
         message: >-
           {% if is_state("input_boolean.imperial", "on") %}
             {{states('input_number.muriatic_tank_imperial')|float}} gallons left!
           {% else %}
             {{states('input_number.muriatic_tank')|float}} liters left!
           {% endif %}
-        title: "Muriatic tank low!"
       service: notify.notify
 
   - alias: muriatic_high
@@ -238,16 +238,17 @@ automation:
     - entity_id: input_boolean.lock_muriatic
       service: input_boolean.turn_on
     - data_template:
+        title: "Acid Injection Blocked!"
         message: >-
           {% if is_state("input_boolean.imperial", "on") %}
-            {{states('input_number.notify_muriatic_high_imperial')|float}} gallons in 48h!
+            {{states('input_number.notify_muriatic_high_imperial')|float|round(1)}} gallons in 48h!
           {% else %}
-            {{states('input_number.notify_muriatic_high')|float}} in 48h!
+            {{states('input_number.notify_muriatic_high')|float|round(1)}} in 48h!
           {% endif %}
-        title: "Muriatic acid injection blocked!"
       service: notify.notify
 
   - alias: muriatic_set
+  # TODO figure out this formula, needs documentation 
     id: '1559049844459'
     initial_state: true
     trigger: []
@@ -267,6 +268,7 @@ automation:
     - condition: state
       entity_id: input_boolean.lock_muriatic
       state: 'off'
+# TODO: add a condition that the main pump is running
     - condition: numeric_state
       entity_id: input_number.muriatic_inject
       value_template: "{{ states('input_number.muriatic_inject')|float / states('input_number.capacity_metric')|float }}"
@@ -275,17 +277,18 @@ automation:
     - entity_id: switch.ph
       service: switch.turn_on
     - data_template:
+        title: "Acid Injection Start"
         message: >-
           {% if is_state("input_boolean.imperial", "on") %}
             Adding {{(states('input_number.muriatic_inject')|float * 0.033814)|round(0)}} oz
           {% else %}
             Adding {{states('input_number.muriatic_inject')|float|round(0)}} ml
           {% endif %}
-        title: "Acid Injection Start"
       service: notify.notify
     - delay: 00:00:{{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }}
     - entity_id: switch.ph
       service: switch.turn_off
     - data_template:
         title: "Acid Injection Ended"
+        message: Pump ran for {{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }} seconds
       service: notify.notify

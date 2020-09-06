@@ -37,7 +37,7 @@ binary_sensor:
   - platform: template
     sensors:
       bleach:
-        friendly_name: "Bleach inj."
+        friendly_name: "Chlorine pump"
         entity_id:
           - switch.orp
           - input_boolean.lock_bleach
@@ -48,7 +48,7 @@ binary_sensor:
             mdi:lock
           {% endif %}
       muriatic:
-        friendly_name: "Muriatic inj."
+        friendly_name: "Acid pump"
         entity_id:
           - switch.ph
           - input_boolean.lock_muriatic
