@@ -6,7 +6,7 @@ sensor:
         entity_id: sensor.pool_temp_fahrenheit
         value_template: "{{ ((states('sensor.pool_temp_fahrenheit')|float - 32)*5/9)|round(1) }}"
         icon_template: mdi:coolant-temperature
-        unit_of_measurement: '°C'
+        unit_of_measurement: 'C'
 
   - platform: template
     sensors:
@@ -15,7 +15,7 @@ sensor:
         entity_id: sensor.pool_water_temperature
         value_template: "{{ states('sensor.pool_water_temperature')|float|round(1) }}"
         icon_template: mdi:coolant-temperature
-        unit_of_measurement: '°F'
+        unit_of_measurement: 'F'
 #  - platform: onewire
 #    names:
 #      28-0319a2792bc3: Pool water
@@ -27,8 +27,8 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x66
-    scan_interval: 30
-    scale: '°F'
+    scan_interval: 300
+    scale: 'F'
 
   - platform: statistics
     name: pool_water_temperature
@@ -42,7 +42,89 @@ input_number:
     min: 40
     max: 90
     step: 1
-    unit_of_measurement: '°F'
+    unit_of_measurement: 'F'
     icon: mdi:coolant-temperature
     mode: box
     initial: 70
+
+automation:
+#TODO - fix this!!!!
+  - alias: temp_low
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.pool_temp
+      below: 7
+      for:
+        hours: 24
+    condition:
+      condition: not
+      conditions:
+        - condition: state
+          entity_id: input_boolean.imperial
+          state: "on"
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+        title: 'Temperature Low ({{trigger.to_state.state}}) C!'
+      service: notify.notify
+
+  - alias: temp_low_imperial
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.pool_temp_fahrenheit
+      below: 44
+      for:
+        hours: 24
+    condition:
+      - condition: state
+        entity_id: input_boolean.imperial
+        state: "on"
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+        title: 'Temperature Low ({{trigger.to_state.state}}) F!'
+      service: notify.notify
+
+  - alias: temp_high
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.pool_temp
+      above: 29
+      for:
+        hours: 24
+    condition:
+      condition: not
+      conditions:
+        - condition: state
+          entity_id: input_boolean.imperial
+          state: "on"
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+        title: 'Temperature High ({{trigger.to_state.state}}) C!'
+      service: notify.notify
+
+  - alias: temp_high
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.pool_temp_fahrenheit
+      above: 84
+      for:
+        hours: 24
+    condition:
+      - condition: state
+        entity_id: input_boolean.imperial
+        state: "on"
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
+          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
+        title: 'Temperature High ({{trigger.to_state.state}}) F!'
+      service: notify.notify

@@ -4,7 +4,9 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x63
-    scan_interval: 30
+    scan_interval: 1440
+    # only scan once a day, otherwise, scanning happens every 2 mins
+    # *while the pump is on*
 
   - platform: statistics
     name: ph

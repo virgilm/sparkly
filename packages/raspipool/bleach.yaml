@@ -267,6 +267,9 @@ automation:
     - condition: state
       entity_id: input_boolean.lock_bleach
       state: 'off'
+    - condition: state
+      entity_id: switch.Pump
+      state: 'on'
     - condition: numeric_state
       entity_id: input_number.bleach_inject
       value_template: "{{ states('input_number.bleach_inject')|float / states('input_number.capacity_metric')|float }}"
@@ -288,5 +291,5 @@ automation:
       service: switch.turn_off
     - data_template:
         title: "Chlorine Injection Ended"
-        message: Pump ran for {{ [0 , 60 * states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }} seconds
+        message: Pump ran for {{ [0 , states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }} minutes
       service: notify.notify

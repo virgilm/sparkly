@@ -248,7 +248,8 @@ automation:
       service: notify.notify
 
   - alias: muriatic_set
-  # TODO figure out this formula, needs documentation 
+  # called when the pump starts, or when the ph target changes
+  # TODO figure out this formula, needs documentation
     id: '1559049844459'
     initial_state: true
     trigger: []
@@ -268,7 +269,9 @@ automation:
     - condition: state
       entity_id: input_boolean.lock_muriatic
       state: 'off'
-# TODO: add a condition that the main pump is running
+    - condition: state
+      entity_id: switch.Pump
+      state: 'on'
     - condition: numeric_state
       entity_id: input_number.muriatic_inject
       value_template: "{{ states('input_number.muriatic_inject')|float / states('input_number.capacity_metric')|float }}"
@@ -290,5 +293,5 @@ automation:
       service: switch.turn_off
     - data_template:
         title: "Acid Injection Ended"
-        message: Pump ran for {{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }} seconds
+        message: Pump ran for {{ [0 , states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }} minutes
       service: notify.notify

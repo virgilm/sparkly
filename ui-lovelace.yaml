@@ -14,16 +14,36 @@ views:
           - title: Status
             type: horizontal-stack
             cards:
-              - max: 90
-                min: 32
-                theme: Backend-selected
-                entity: sensor.pool_water_temperature
-                severity:
-                  red: 32
-                  green: 60
-                  yellow: 84
-                name: Temp
-                type: gauge
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state: "on"
+                card:
+                  min: 32
+                  max: 90
+                  theme: Backend-selected
+                  entity: sensor.pool_temp_fahrenheit
+                  severity:
+                    green: 75
+                    red: 84
+                    yellow: 80
+                  name: Temp
+                  type: gauge
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.imperial
+                    state_not: "on"
+                card:
+                  min: 0
+                  max: 34
+                  theme: Backend-selected
+                  entity: sensor.pool_temp
+                  severity:
+                    green: 24
+                    yellow: 26
+                    red: 29
+                  name: Temp
+                  type: gauge
               - max: 8.5
                 min: 6.5
                 theme: Backend-selected
@@ -44,40 +64,25 @@ views:
                   red: 100
                 name: ORP
                 type: gauge
-          - type: horizontal-stack
-            cards:
-              - max: 10
-                min: 0
-                theme: default
-                entity: sensor.flow_rate
-                severity:
-                  green: 0
-                  red: 8
-                  yellow: 5
-                name: Flow
-                type: gauge
-              - type: button
-                entity: binary_sensor.flow_on_icon
-                tap_action:
-                  action: none
-                hold_action:
-                  action: none
           - show_name: false
             entities:
               - entity: sensor.ezo_temperature
-                hold_action:
+                show_last_changed: true
+                tap_action:
                   action: call-service
                   service: homeassistant.update_entity
                   service_data:
                     entity_id: sensor.ezo_temperature
               - entity: sensor.ezo_ph
-                hold_action:
+                show_last_changed: true
+                tap_action:
                   action: call-service
                   service: homeassistant.update_entity
                   service_data:
                     entity_id: sensor.ezo_ph
               - entity: sensor.ezo_orp
-                hold_action:
+                show_last_changed: true
+                tap_action:
                   action: call-service
                   service: homeassistant.update_entity
                   service_data:
@@ -153,37 +158,81 @@ views:
                     green: 5
                     red: 0
                     yellow: 2
-          - show_name: true
-            entities:
-              - entity: switch.pump
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: switch.pump
                 icon: mdi:engine
-                hold_action:
-                  action: toggle
-              - entity: switch.turbo
-                icon: mdi:speedometer
-                hold_action:
-                  action: toggle
-              - entity: binary_sensor.muriatic
-                hold_action:
-                  action: call-service
-                  service: switch.toggle
-                  service_data:
-                    entity_id: switch.ph
                 tap_action:
-                  action: navigate
-                  navigation_path: /lovelace/2
-              - entity: binary_sensor.bleach
-                hold_action:
-                  action: call-service
-                  service: switch.toggle
-                  service_data:
-                    entity_id: switch.orp
+                  action: toggle
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.turbo
+                    state: "on"
+                card:
+                  type: button
+                  entity: switch.turbo
+                  icon: mdi:speedometer
+                  tap_action:
+                    action: toggle
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.lock_muriatic
+                    state_not: "on"
+                card:
+                  type: button
+                  entity: binary_sensor.muriatic
+                  tap_action:
+                    action: call-service
+                    service: switch.toggle
+                    service_data:
+                      entity_id: switch.ph
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.lock_muriatic
+                    state: "on"
+                card:
+                  type: button
+                  entity: binary_sensor.muriatic
+                  tap_action:
+                    action: none
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.lock_bleach
+                    state_not: "on"
+                card:
+                  type: button
+                  entity: binary_sensor.bleach
+                  tap_action:
+                    action: call-service
+                    service: switch.toggle
+                    service_data:
+                      entity_id: switch.orp
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.lock_bleach
+                    state: "on"
+                card:
+                  type: button
+                  entity: binary_sensor.bleach
+                  tap_action:
+                    action: none
+          - type: horizontal-stack
+            cards:
+              - max: 10
+                min: 0
+                theme: default
+                entity: sensor.flow_rate
+                severity:
+                  green: 0
+                  red: 8
+                  yellow: 5
+                name: Flow
+                type: gauge
+              - type: button
+                entity: binary_sensor.flow_on_icon
                 tap_action:
-                  action: navigate
-                  navigation_path: /lovelace/2
-            type: glance
-            show_state: false
-            show_icon: true
+                  action: none
   - badges: []
     title: History
     icon: 'mdi:chart-line'
@@ -457,7 +506,13 @@ views:
           - entity: input_datetime.recirculation
             name: Turnover rate
           - entity: input_boolean.turbo
-          - entity: input_number.turbo
+          - type: conditional
+            conditions:
+              - entity: input_boolean.turbo
+                state: "on"
+            row:
+              entity: input_number.turbo
+              theme: default
           - label: Filter
             type: section
           - entity: input_datetime.cycle_start
@@ -500,40 +555,34 @@ views:
       - type: vertical-stack
         cards:
           - type: horizontal-stack
-            title: Hold down to activate
+            title: Maintainance/Service
             cards:
               - icon_height: 64px
                 type: entity-button
-                tap_action:
-                  action: none
                 entity: input_number.out_of_order
                 show_name: true
                 name: Maintenance
                 show_icon: true
-                hold_action:
+                tap_action:
                   action: more-info
               - icon_height: 64px
                 type: entity-button
-                tap_action:
-                  action: more-info
                 entity: input_datetime.cummulated_flow_start
                 show_name: true
                 name: Reset Cumm. Flow
                 show_icon: true
-                hold_action:
+                tap_action:
                   action: call-service
                   service: automation.trigger
                   service_data:
                     entity_id: automation.reset_cummulated_flow_start
               - icon_height: 64px
                 type: entity-button
-                tap_action:
-                  action: none
                 entity: input_number.boost_for
                 show_name: true
                 name: Boost
                 show_icon: true
-                hold_action:
+                tap_action:
                   action: more-info
           - entities:
               - entity: input_datetime.cummulated_flow_start
@@ -582,4 +631,3 @@ views:
                   confirmation:
                     text: Are you sure you want to calibrate?
                   service: script.calibrate_temp
-
