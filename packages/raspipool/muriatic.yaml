@@ -174,6 +174,8 @@ automation:
         data_template:
           entity_id: input_number.notify_muriatic_tank_imperial
           value: "{{(states('input_number.notify_muriatic_tank')|float / 3.78541)| round(1) }}"
+      - service: automation.trigger
+        entity_id: automation.muriatic_tank_low
 
   - alias: acid_tank_low_sync_2
     trigger:
@@ -198,7 +200,7 @@ automation:
     - service: input_number.set_value
       data_template:
         entity_id: input_number.muriatic_tank
-        value: " {{ ( states('input_number.muriatic_tank')|float - ( states('sensor.muriatic_on_last_hour')|float * states('input_number.muriatic_speed')|int * 6 / 100 ) ) | round(2) }} "
+        value: " {{ [0, (states('input_number.muriatic_tank')|float - ( states('sensor.muriatic_on_last_hour')|float * states('input_number.muriatic_speed')|int * 6 / 100 ))]|max | round(2) }} "
 
   - alias: muriatic_tank_low
     id: '1559049845419'
@@ -206,9 +208,9 @@ automation:
     trigger:
       platform: template
       value_template: >-
-        "{% if states('input_number.notify_muriatic_tank')|int > 0 and (states('input_number.muriatic_tank')|float < states('input_number.notify_muriatic_tank')|float) %}
+        {% if states('input_number.notify_muriatic_tank')|int > 0 and (states('input_number.muriatic_tank')|float < states('input_number.notify_muriatic_tank')|float) %}
           true
-        {% endif %}"
+        {% endif %}
     condition: []
     action:
     - data_template:

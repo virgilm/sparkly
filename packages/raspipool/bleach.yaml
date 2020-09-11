@@ -197,7 +197,7 @@ automation:
     - service: input_number.set_value
       data_template:
         entity_id: input_number.bleach_tank
-        value: " {{ ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) ) | round(2) }} "
+        value: " {{ [0, ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) )] | max | round(2) }} "
 
   - alias: bleach_tank_low
     id: '1559049845420'
@@ -205,9 +205,9 @@ automation:
     trigger:
       platform: template
       value_template: >-
-        "{% if states('input_number.notify_bleach_tank')|int > 0 and (states('input_number.bleach_tank')|float < states('input_number.notify_bleach_tank')|float) %}
+        {% if states('input_number.notify_bleach_tank')|int > 0 and (states('input_number.bleach_tank')|float < states('input_number.notify_bleach_tank')|float) %}
           true
-        {% endif %}"
+        {% endif %}
     condition: []
     action:
     - data_template:

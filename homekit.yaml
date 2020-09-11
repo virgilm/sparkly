@@ -5,8 +5,8 @@
       - switch.ph
       - switch.orp
       - switch.turbo
-      - sensor.pool_temp
-#      - sensor.exterior_temperature
+      - sensor.pool_temp_homekit
+#     - sensor.exterior_temperature
   entity_config:
     switch.pump:
       name: Pump
@@ -20,7 +20,7 @@
     switch.turbo:
       name: Turbo
       type: valve
-    sensor.pool_temp:
+    sensor.pool_temp_homekit:
       name: Water Temperature
 #    sensor.exterior_temperature:
 #      name: Ext. Temperature

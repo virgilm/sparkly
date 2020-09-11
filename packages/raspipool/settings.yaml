@@ -62,13 +62,26 @@ input_boolean:
     icon: mdi:shaker-outline
     initial: false
 
-sensor:
-  - platform: template
-    sensors:
-      capacity_uom:
-        value_template: >-
-          {% if is_state("input_boolean.imperial", "on") -%}
-            gal
-          {%- else -%}
-            l
-          {%- endif %}
+automation:
+  # Sync Pool Capacity (m3 vs gal)
+  - alias: capacity_sync_1
+    trigger:
+      - platform: state
+        entity_id: input_number.capacity_metric
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.capacity_imperial
+          value: "{{(states('input_number.capacity_metric')|float * 264.172)| round(1) }}"
+
+  - alias: capacity_sync_2
+    trigger:
+      - platform: state
+        entity_id: input_number.capacity_imperial
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.capacity_metric
+          value: "{{(states('input_number.capacity_imperial')|float / 264.172)| round(1) }}"

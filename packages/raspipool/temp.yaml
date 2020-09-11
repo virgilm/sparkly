@@ -9,6 +9,27 @@ sensor:
         unit_of_measurement: 'C'
 
   - platform: template
+  # workaround for homekit. If the unit is 'C', homekit is confused
+  # if the unit is '°C' above, homeassistant is confused.
+  # however, if the temperature is set in Celsius, homeassistant somehow
+  # figures out automagically that it should be F
+  # F*ED UP!
+    sensors:
+      pool_temp_homekit:
+        friendly_name: "Water Temperature"
+        entity_id:
+          - sensor.pool_temp
+          - sensor.pool_temp_fahrenheit
+        value_template: >-
+          {% if is_state("input_boolean.imperial", "on") %}
+            {{states('sensor.pool_temp')}}
+          {% else %}
+            {{states('sensor.pool_temp_fahrenheit')}}
+          {% endif %}
+        icon_template: mdi:coolant-temperature
+        unit_of_measurement: '°C'
+
+  - platform: template
     sensors:
       pool_temp_fahrenheit:
         friendly_name: "Water Temperature"
@@ -34,7 +55,7 @@ sensor:
     name: pool_water_temperature
     entity_id: sensor.ezo_temperature
     max_age:
-      minutes: 60
+      hours: 24
     precision: 1
 
 input_number:
@@ -65,9 +86,9 @@ automation:
           state: "on"
     action:
     - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-        title: 'Temperature Low ({{trigger.to_state.state}}) C!'
+        message: '{{trigger.to_state.attributes.friendly_name}} has been less than {{trigger.below}} °C
+          for more than {{trigger.for}}'
+        title: 'Temperature Low - {{trigger.to_state.state}} °C!'
       service: notify.notify
 
   - alias: temp_low_imperial
@@ -84,9 +105,9 @@ automation:
         state: "on"
     action:
     - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-        title: 'Temperature Low ({{trigger.to_state.state}}) F!'
+        message: '{{trigger.to_state.attributes.friendly_name}} has been less than {{trigger.below}} °F
+          for more than {{trigger.for}}'
+        title: 'Temperature Low - {{trigger.to_state.state}} °F!'
       service: notify.notify
 
   - alias: temp_high
@@ -105,9 +126,9 @@ automation:
           state: "on"
     action:
     - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-        title: 'Temperature High ({{trigger.to_state.state}}) C!'
+        message: '{{trigger.to_state.attributes.friendly_name}} has been more than {{trigger.above}} °C
+          for more than {{trigger.for}}'
+        title: 'Temperature High - {{trigger.to_state.state}} °C!'
       service: notify.notify
 
   - alias: temp_high
@@ -124,7 +145,7 @@ automation:
         state: "on"
     action:
     - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}{{-
-          "\n\n" -}}@{{now().strftime("%H:%M")}}[{{now().day}}/{{now().month}}]'
-        title: 'Temperature High ({{trigger.to_state.state}}) F!'
+        message: '{{trigger.to_state.attributes.friendly_name}} has been more than {{trigger.above}} °F
+          for more than {{trigger.for}}'
+        title: 'Temperature High - {{trigger.to_state.state}} °F!'
       service: notify.notify
