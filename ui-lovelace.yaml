@@ -594,6 +594,18 @@ views:
             cards:
               - icon_height: 64px
                 type: entity-button
+                entity: input_number.calibrate_temp
+                show_name: true
+                name: Temp
+                show_icon: true
+                show_state: true
+                hold_action:
+                  action: call-service
+                  confirmation:
+                    text: Are you sure you want to calibrate?
+                  service: script.calibrate_temp
+              - icon_height: 64px
+                type: entity-button
                 entity: input_number.calibrate_ph
                 show_name: true
                 name: pH
@@ -619,15 +631,3 @@ views:
                   confirmation:
                     text: Are you sure you want to calibrate?
                   service: script.calibrate_orp
-              - icon_height: 64px
-                type: entity-button
-                entity: input_number.calibrate_temp
-                show_name: true
-                name: Temp
-                show_icon: true
-                show_state: true
-                hold_action:
-                  action: call-service
-                  confirmation:
-                    text: Are you sure you want to calibrate?
-                  service: script.calibrate_temp

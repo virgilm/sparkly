@@ -1,20 +1,31 @@
 sensor:
-  - platform: statistics
-    name: orp
-    entity_id: sensor.ezo_orp
-    max_age:
-      minutes: 60
-    precision: 0
-
   - platform: atlas_scientific
 # For serial ports use:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x62
 #    offset: 78
-    scan_interval: 1440
-    # only scan once a day, otherwise, scanning happens every 2 mins
+    scan_interval: 31536000
+    # never scan, scanning happens every 2 mins
     # *while the pump is on*
+
+  - platform: statistics
+    name: orp_stat
+    entity_id: sensor.ezo_orp
+    max_age:
+      minutes: 60
+    precision: 0
+
+  - platform: template
+    sensors:
+      orp:
+        unit_of_measurement: 'mV'
+        value_template: >
+          {% if is_state('sensor.orp_stat', 'unknown') %}
+            0
+          {% else %}
+            {{ states('sensor.orp_stat') }}
+          {% endif %}
 
 input_number:
   calibrate_orp:

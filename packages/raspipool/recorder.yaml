@@ -18,6 +18,8 @@ recorder:
       - sensor.exterior_temperature
       - switch.ph
       - switch.orp
+      - switch.turbo
+      - switch.pump
       - sensor.e_fc
   exclude:
     entities:

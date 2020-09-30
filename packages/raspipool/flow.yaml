@@ -17,15 +17,8 @@ sensor:
       remain_cycles:
         friendly_name: "Remain cycles"
         value_template: >-
-          {% set hours = states('sensor.cycle_pool') | regex_replace(":[0-9]*$","") %}
-          {% set mins = states('sensor.cycle_pool') | regex_replace("^[0-9]*:","") %}
-          {% set nextcycle = (hours|int + mins|int/60) %}
           {{(states('input_number.notify_cycles')|float - (states('sensor.cummulated_flow_low')|float + states('sensor.cummulated_flow_high')|float * 5) / (state_attr('input_datetime.recirculation','hour')+ state_attr('input_datetime.recirculation','minute')|float/60) )|round(1)}}
         unit_of_measurement: ''
-        entity_id: 
-        - input_number.notify_cycles
-        - sensor.cummulated_flow_low
-        - sensor.cummulated_flow_high
   
   - platform: history_stats
     name: cummulated_flow_low
@@ -66,8 +59,6 @@ sensor:
         value_template: >-
           {{(states('sensor.pulses_per_minute')|int / 76)|float|round(1)}}
         unit_of_measurement: 'L/min'
-        entity_id:
-        - sensor.pulses_per_minute
 
 binary_sensor:
   - platform: rpi_gpio
@@ -78,7 +69,6 @@ binary_sensor:
     sensors:
       flow_on_icon:
         friendly_name: "Flow Cell State"
-        entity_id: sensor.flow_on
         value_template: "{{ states('sensor.flow_on')|int == 1 }}"
         icon_template: >-
           {% if states('sensor.flow_on')|int == 1 %}

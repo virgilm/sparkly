@@ -13,16 +13,16 @@ switch:
 #    invert_logic: true
   - platform: sequent_microsystems
     name: Pump
-    relay: 7
+    relay: 4
   - platform: sequent_microsystems
     name: Turbo
-    relay: 8
-  - platform: sequent_microsystems
-    name: ph
     relay: 3
   - platform: sequent_microsystems
+    name: ph
+    relay: 7
+  - platform: sequent_microsystems
     name: orp
-    relay: 4
+    relay: 8
 
 input_boolean:
   lock_bleach:
@@ -38,9 +38,9 @@ binary_sensor:
     sensors:
       bleach:
         friendly_name: "Chlorine pump"
-        entity_id:
-          - switch.orp
-          - input_boolean.lock_bleach
+#        entity_id:
+#          - switch.orp
+#          - input_boolean.lock_bleach
         device_class: plug
         value_template: "{{ is_state('switch.orp', 'on') }}"
         icon_template: >-
@@ -49,9 +49,9 @@ binary_sensor:
           {% endif %}
       muriatic:
         friendly_name: "Acid pump"
-        entity_id:
-          - switch.ph
-          - input_boolean.lock_muriatic
+#        entity_id:
+#          - switch.ph
+#          - input_boolean.lock_muriatic
         device_class: plug
         value_template: "{{ is_state('switch.ph', 'on') }}"
         icon_template: >-

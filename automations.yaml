@@ -199,8 +199,6 @@
       date: "{{now().timestamp()|timestamp_custom('%Y-%m-%d', True)}}"
       time: "{{now().timestamp()|timestamp_custom('%H:%M:%S', True)}}"
 
-
-
 - alias: winter_session
   id: '1559049956784'
   initial_state: true
@@ -238,7 +236,6 @@
       message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
       title: "Summer is here!"
     service: notify.notify
-
 
 - alias: factory_started
   id: '1559149839000'
@@ -298,5 +295,8 @@
     data_template:
       entity_id: input_number.muriatic_speed
       value: 25
-
+  - service: input_datetime.set_datetime
+    data_template:
+      entity_id: input_datetime.recirculation
+      time: 08:00:00
 

@@ -10,10 +10,10 @@ sensor:
             ( 1 - is_state('input_boolean.turbo','on')|int * states('input_number.turbo')|float * 2 / 300 ) *
             ( temp / [1, ( 9 - temp / 2)]|max ) /
             ( states('input_number.quality')|float + 6 ) )|round(0) | timestamp_custom('%H:%M', false) }}
-        entity_id:
-        - sensor.pool_temp
-        - input_number.cycle
-        - input_number.quality
+#        entity_id:
+#        - sensor.pool_temp
+#        - input_number.cycle
+#        - input_number.quality
         icon_template: >-
           {% if states('input_number.cycle')|int < 0 %}
             mdi:water-off
@@ -24,6 +24,39 @@ sensor:
           {% else %}
             mdi:weather-sunny
           {% endif %}
+      time_to_run_daily:
+# how long pump needs to run (single speed) to achieve turnover
+# compensated for temperature
+# time_to_run_daily = temp(F)/5 + recirc - 14 for a slope of 2h/10 degrees F
+# time_to_run_daily = temp(F)/10 + recirc - 7 for a slope of 1h/10 degrees F
+        unit_of_measurement: 'h'
+        friendly_name: "Pump Run Time"
+ #      value_template: >-
+ #        {{[0.0, (states('sensor.pool_temp_fahrenheit')|float/5 + states.input_datetime.recirculation.attributes.timestamp | timestamp_custom('%H', False)|int - 14)|round(2)] | max}}
+        value_template: >-
+          {{[0.0, (states('sensor.pool_temp_fahrenheit')|float/10 + states.input_datetime.recirculation.attributes.timestamp | timestamp_custom('%H', False)|int - 7)|round(2)] | max}}
+
+      ttr_low_speed:
+# how long to run in either single speed or low speed
+        friendly_name: "Run Time"
+        unit_of_measurement: 'h'
+        value_template: >-
+          {% if is_state('input_boolean.turbo', 'on') %}
+            {{(states('sensor.time_to_run_daily')|float / (1/2 + states('input_number.turbo')|int/100))|round(2)}}
+          {% else %}
+            {{states('sensor.time_to_run_daily')|float|round(2)}}
+          {% endif %}
+      ttr_high_speed:
+# how long to run in high speed
+        friendly_name: "High Speed Run Time"
+        unit_of_measurement: 'h'
+        value_template: >-
+          {% if is_state('input_boolean.turbo', 'on') %}
+            {{((states('sensor.time_to_run_daily')|float / (1/2 + states('input_number.turbo')|int/100))* (states('input_number.turbo')|int/100))|round(2)}}
+          {% else %}
+            0.0
+          {% endif %}
+
 
 input_number:
   out_of_order:
@@ -41,7 +74,7 @@ input_number:
     unit_of_measurement: 'minutes'
     mode: box
   second_cycle:
-  # percentago of time the pump should run in Hihg speed mode
+  # percentage of time the pump should run in High speed mode
     min: 0
     max: 50
     step: 5

@@ -4,15 +4,26 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x63
-    scan_interval: 1440
-    # only scan once a day, otherwise, scanning happens every 2 mins
+    scan_interval: 31536000
+    # never scan, scanning happens every 2 mins
     # *while the pump is on*
 
   - platform: statistics
-    name: ph
+    name: ph_stat
     entity_id: sensor.ezo_ph
     max_age:
       minutes: 60
+
+  - platform: template
+    sensors:
+      ph:
+        unit_of_measurement: 'pH'
+        value_template: >
+          {% if is_state('sensor.ph_stat', 'unknown') %}
+            0
+          {% else %}
+            {{ states('sensor.ph_stat') }}
+          {% endif %}
 
 input_number:
   ph_target:
@@ -23,8 +34,8 @@ input_number:
     icon: mdi:alpha-h-circle-outline
     mode: box
   calibrate_ph:
-    min: 6.5
-    max: 8.5
+    min: 4
+    max: 10
     step: 0.01
     unit_of_measurement: 'pH'
     icon: mdi:alpha-h-circle-outline

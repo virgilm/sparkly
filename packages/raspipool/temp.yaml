@@ -3,7 +3,7 @@ sensor:
     sensors:
       pool_temp:
         friendly_name: "Water Temperature"
-        entity_id: sensor.pool_temp_fahrenheit
+#        entity_id: sensor.pool_temp_fahrenheit
         value_template: "{{ ((states('sensor.pool_temp_fahrenheit')|float - 32)*5/9)|round(1) }}"
         icon_template: mdi:coolant-temperature
         unit_of_measurement: 'C'
@@ -17,9 +17,9 @@ sensor:
     sensors:
       pool_temp_homekit:
         friendly_name: "Water Temperature"
-        entity_id:
-          - sensor.pool_temp
-          - sensor.pool_temp_fahrenheit
+ #       entity_id:
+ #         - sensor.pool_temp
+ #         - sensor.pool_temp_fahrenheit
         value_template: >-
           {% if is_state("input_boolean.imperial", "on") %}
             {{states('sensor.pool_temp')}}
@@ -33,7 +33,7 @@ sensor:
     sensors:
       pool_temp_fahrenheit:
         friendly_name: "Water Temperature"
-        entity_id: sensor.pool_water_temperature
+#        entity_id: sensor.pool_water_temperature
         value_template: "{{ states('sensor.pool_water_temperature')|float|round(1) }}"
         icon_template: mdi:coolant-temperature
         unit_of_measurement: 'F'
@@ -48,7 +48,7 @@ sensor:
 #   port: /dev/ttyUSB0
 # For I2C enter the hex device id
     port: 0x66
-    scan_interval: 300
+    scan_interval: 120
     scale: 'F'
 
   - platform: statistics
