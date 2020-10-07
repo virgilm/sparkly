@@ -25,3 +25,59 @@ input_number:
     unit_of_measurement: 'ppm'
     icon: mdi:react
 
+automation:
+  - alias: fc_ok
+    id: '1559638825701'
+    initial_state: true
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.e_fc
+      above: 0.60
+      below: 5.00
+      for:
+        minutes: 1
+    condition: []
+    action:
+    - service: frontend.set_theme
+      data:
+        name: default
+  - alias: fc_high
+    id: '1559638825702'
+    initial_state: true
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.e_fc
+      above: 5.01
+      for:
+        minutes: 1
+    condition: []
+    action:
+    - service: frontend.set_theme
+      data:
+        name: danger
+
+  - alias: fc_low
+    id: '1559638825703'
+    initial_state: true
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.e_fc
+      below: 0.59
+      for:
+        minutes: 1
+    condition: []
+    action:
+    - service: frontend.set_theme
+      data:
+        name: algae
+
+  - alias: fc_target
+    id: '1559146873657'
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: input_number.fc_target
+    condition: []
+    action:
+      - service: automation.trigger
+        entity_id: automation.bleach_set

@@ -42,4 +42,79 @@ input_number:
     mode: box
     initial: 7.4
 
+automation:
+  - alias: ph_start
+    id: '1559669855764'
+    initial_state: true
+    trigger:
+    - platform: state
+      entity_id: switch.ph
+      to: 'on'
+    condition:
+    - condition: state
+      entity_id: switch.pump
+      state: 'off'
+    action:
+    - service: switch.turn_off
+      entity_id: switch.ph
 
+  - alias: ph_high
+    id: '1559049859759'
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.ph
+      above: 7.5
+      for:
+        hours: 48
+    condition: []
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
+        title: 'pH high ({{trigger.to_state.state}})!'
+      service: notify.notify
+
+  - alias: ph_low
+    id: '1559049839760'
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.ph
+      below: 6.9
+      for:
+        hours: 48
+    condition: []
+    action:
+    - data_template:
+        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
+        title: 'pH low ({{trigger.to_state.state}})!'
+      service: notify.notify
+
+  - alias: ph_bad
+    id: '1559049893756'
+    initial_state: true
+    trigger:
+    - platform: template
+      value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
+    condition: []
+    action:
+    - service: notify.notify
+      data_template:
+        message: 'It varied between {{state_attr("sensor.ph", "min_value")}} and 
+          {{state_attr("sensor.ph", "max_value")}} over the past 
+          {{(state_attr("sensor.ph", "sampling_size")*30/60)|int}} minutes'
+          # scan_interval: 30 is the scan_interval for the orp probe (orp.yaml) 
+        title: 'pH probe may need calibration!'
+    - service: automation.turn_off
+      entity_id: automation.ph_bad
+
+  - alias: ph_target
+    id: '1559146893656'
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: input_number.ph_target
+    condition: []
+    action:
+      - service: automation.trigger
+        entity_id: automation.muriatic_set

@@ -40,7 +40,6 @@ input_number:
     unit_of_measurement: '%'
     icon: mdi:circle-slice-2
 
-
 input_boolean:
   turbo:
     name: Dual-speed Pump
@@ -61,6 +60,10 @@ input_boolean:
     name: Salt System
     icon: mdi:shaker-outline
     initial: false
+
+  has_flow_sensor:
+    name: Flow sensor present
+    initial: true
 
 automation:
   # Sync Pool Capacity (m3 vs gal)
@@ -85,3 +88,66 @@ automation:
         data_template:
           entity_id: input_number.capacity_metric
           value: "{{(states('input_number.capacity_imperial')|float / 264.172)| round(1) }}"
+
+  - alias: factory_started
+    id: '1559149839000'
+    initial_state: true
+    trigger:
+      platform: homeassistant
+      event: start
+    condition:
+      condition: state
+      entity_id: input_boolean.factory_started
+      state: 'off'
+    action:
+    - service: input_boolean.turn_on
+      data:
+        entity_id: input_boolean.factory_started
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.capacity_metric
+        value: 50
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.quality
+        value: 4
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.bleach_tank
+        value: 20
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.bleach_concentration
+        value: 5
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.bleach_speed
+        value: 25
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.fc_target
+        value: 1.5
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.e_fc_adjust
+        value: 0
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.ph_target
+        value: 7.2
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.muriatic_tank
+        value: 10
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.muriatic_concentration
+        value: 20
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.muriatic_speed
+        value: 25
+    - service: input_datetime.set_datetime
+      data_template:
+        entity_id: input_datetime.recirculation
+        time: 08:00:00

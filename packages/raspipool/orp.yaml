@@ -37,3 +37,36 @@ input_number:
     mode: box
     initial: 700
 
+automation:
+  - alias: orp_start
+    id: '1559639825764'
+    initial_state: true
+    trigger:
+    - platform: state
+      entity_id: switch.orp
+      to: 'on'
+    condition:
+    - condition: state
+      entity_id: switch.pump
+      state: 'off'
+    action:
+    - service: switch.turn_off
+      entity_id: switch.orp
+
+  - alias: orp_bad
+    id: '1559149493756'
+    initial_state: true
+    trigger:
+    - platform: template
+      value_template: '{{state_attr("sensor.orp", "standard_deviation") > 20 }}'
+    condition: []
+    action:
+    - service: notify.notify
+      data_template:
+        message: 'It varied between {{state_attr("sensor.orp", "min_value")}} and 
+          {{state_attr("sensor.orp", "max_value")}} over the past 
+          {{(state_attr("sensor.orp", "sampling_size")*30/60)|int}} minutes'
+          # scan_interval: 30 is the scan_interval for the orp probe (orp.yaml) 
+        title: 'ORP probe may need calibration!'
+    - service: automation.turn_off
+      entity_id: automation.orp_bad

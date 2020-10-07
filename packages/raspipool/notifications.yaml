@@ -9,3 +9,41 @@ input_boolean:
     icon: mdi:comment-alert
 
 
+automation:
+  - alias: winter_session
+    id: '1559049956784'
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: input_number.cycle
+      below: 240
+      for:
+        hours: 121
+    condition:
+    - condition: state
+      entity_id: input_boolean.notify_seasson
+      state: 'on'
+    action:
+    - data_template:
+        message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+        title: 'Winter is comming!'
+      service: notify.notify
+
+  - alias: summer_session
+    id: '1559049956785'
+    initial_state: true
+    trigger:
+    - platform: numeric_state
+      entity_id: input_number.cycle
+      above: 240
+      for:
+        hours: 121
+    condition:
+    - condition: state
+      entity_id: input_boolean.notify_seasson
+      state: 'on'
+    action:
+    - data_template:
+        message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+        title: "Summer is here!"
+      service: notify.notify

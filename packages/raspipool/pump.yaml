@@ -244,21 +244,29 @@ automation:
 
   - alias: every_2_min
   # every 2 mins while the pump in running for at least 5 mins,
-  # and there is water flow in the flow cell, check ph/orp/temp
+  # and there is water flow in the flow cell or the flow sensor is not enabled,
+  # check ph/orp/temp
     id: '1554168816425'
     initial_state: true
     trigger:
     - platform: time_pattern
       minutes: '/2'
     condition:
-      - condition: state
-        entity_id: switch.pump
-        state: 'on'
-        for:
-          minutes: 5
-      - condition: numeric_state
-        entity_id: sensor.flow_on
-        above: 0
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: switch.pump
+          state: 'on'
+          for:
+            minutes: 5
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: input_boolean.has_flow_sensor
+              state: 'off'
+            - condition: numeric_state
+              entity_id: sensor.flow_on
+              above: 0
     action:
     - service: homeassistant.update_entity
       entity_id: sensor.ezo_ph

@@ -65,7 +65,6 @@ emulated_hue:
     switch.turbo:
       name: Turbo
       hidden: false
-automation: !include automations.yaml
 script: !include scripts.yaml
 lovelace:
   mode: yaml
