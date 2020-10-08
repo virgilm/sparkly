@@ -4,5 +4,5 @@
     "documentation": "https://www.example.com",
     "dependencies": [],
     "codeowners": [],
-    "requirements": ["lib8relay==1.0.0"]
+    "requirements": ["lib8relay>=1.0.0"]
   }
