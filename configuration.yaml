@@ -42,6 +42,7 @@ logger:
   default: info
   logs:
     custom_components.atlas_scientific.sensor: debug
+    custom_components.scheduler: debug
     homeassistant.components.switch.command_line: debug
     homeassistant.components.homekit: debug
     zeroconf: error

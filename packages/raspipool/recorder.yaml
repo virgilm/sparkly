@@ -14,13 +14,15 @@ recorder:
       - sensor.remain_cycles
       - input_number.muriatic_tank
       - input_number.bleach_tank
-      - sensor.exterior_condition
-      - sensor.exterior_temperature
       - switch.ph
       - switch.orp
       - switch.turbo
       - switch.pump
       - sensor.e_fc
+      - sensor.flow_on
+      - input_number.off_peak_tariff
+      - input_number.partial_peak_tariff
+      - input_number.peak_tariff
   exclude:
     entities:
       - binary_sensor.watermeter

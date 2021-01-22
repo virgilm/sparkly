@@ -1,0 +1,88 @@
+input_number:
+  tariff:
+    name: Tariff
+    unit_of_measurement: '$'
+    initial: 0
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash-usd-outline
+  peak_tariff_utility:
+    name: Peak Tariff Utility
+    unit_of_measurement: '$'
+    initial: 0.13
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash-100
+  peak_tariff:
+    name: Peak Tariff
+    unit_of_measurement: '$'
+    initial: 0.13
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash-100
+  partial_peak_tariff:
+    name: Partial Peak Tariff
+    unit_of_measurement: '$'
+    initial: 0.05
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash-multiple
+  partial_peak_tariff_utility:
+    name: Partial Peak Tariff Utility
+    unit_of_measurement: '$'
+    initial: 0.05
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash-multiple
+  off_peak_tariff:
+    name: Off Peak Tariff
+    unit_of_measurement: '$'
+    initial: 0.02
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash
+  off_peak_tariff_utility:
+    name: Off Peak Tariff Utility
+    unit_of_measurement: '$'
+    initial: 0.02
+    min: 0
+    max: 1
+    step: 0.1
+    icon: mdi:cash
+
+  off_peak_time:
+    name: Off Peak Total Time
+    unit_of_measurement: 'h'
+    initial: 0
+    min: 0
+    max: 24
+    step: 0.1
+
+input_select:
+  type_of_sched:
+    name: Pump Control
+    options:
+      - Schedule
+      - Automatic
+      - Tariff
+    initial: Schedule
+    icon: mdi:engine
+
+automation:
+  - alias: Clear all schedules
+    # TODO
+    # On mode change, clear all existing schedules.
+    # I need a way to iterate through all schedules.
+    trigger:
+      platform: state
+      entity_id: input_select.type_of_sched
+    action:
+      service: scheduler.remove
+      data:
+        entity_id: schedule_abcdef

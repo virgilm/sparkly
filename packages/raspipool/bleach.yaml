@@ -187,8 +187,6 @@ automation:
 
   # Bleach Section
   - alias: bleach_every_hour
-    id: '1554367517425'
-    initial_state: true
     trigger:
     - platform: time_pattern
       minutes: 1
@@ -200,8 +198,6 @@ automation:
         value: " {{ [0, ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) )] | max | round(2) }} "
 
   - alias: bleach_tank_low
-    id: '1559049845420'
-    initial_state: true
     trigger:
       platform: template
       value_template: >-
@@ -221,8 +217,6 @@ automation:
       service: notify.notify
 
   - alias: bleach_high
-    id: '1559049844490'
-    initial_state: true
     trigger:
       platform: template
       value_template: >-
@@ -248,8 +242,6 @@ automation:
 
   - alias: bleach_set
   # TODO figure out this formula, needs documentation 
-    id: '1559149839459'
-    initial_state: true
     trigger: []
     condition: []
     action:
@@ -259,8 +251,6 @@ automation:
         value: " {{ ( states('input_number.capacity_metric')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
 
   - alias: bleach_inject
-    id: '1559149426435'
-    initial_state: true
     trigger: []
     condition: []
     action:

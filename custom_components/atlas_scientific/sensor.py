@@ -208,7 +208,7 @@ class AtlasSensor(Entity):
 			if self.auto_sleep==1:
 				self._read("SLEEP")
 		except Exception as e:
-			_LOGGER.error("Exception: "+e+"! read '%s'" % r)
+			_LOGGER.error(repr(e))
 		return
 
 	def __del__(self):

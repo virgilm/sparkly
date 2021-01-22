@@ -25,7 +25,9 @@ sensor:
     entity_id: sensor.pump_state
     state: 'low'
     type: time
-    start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
+    # TODO: only 1 day?
+    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    # start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
     end: "{{ now() }}"
 
   - platform: history_stats
@@ -33,7 +35,9 @@ sensor:
     entity_id: sensor.pump_state
     state: 'high'
     type: time
-    start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
+    # TODO: only 1 day?
+    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    # start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
     end: "{{ now() }}"
 
   - platform: statistics
@@ -94,8 +98,6 @@ input_number:
 
 automation:
   - alias: notify_cummulated_flow
-    id: '1559049859380'
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.remain_cycles
@@ -111,7 +113,6 @@ automation:
       service: notify.notify
 
   - alias: reset_cummulated_flow_start
-    id: '1559293506609'
     trigger: []
     condition: []
     action:

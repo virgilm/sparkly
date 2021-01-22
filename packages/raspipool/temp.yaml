@@ -71,7 +71,6 @@ input_number:
 automation:
 #TODO - fix this!!!!
   - alias: temp_low
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.pool_temp
@@ -92,7 +91,6 @@ automation:
       service: notify.notify
 
   - alias: temp_low_imperial
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.pool_temp_fahrenheit
@@ -111,7 +109,6 @@ automation:
       service: notify.notify
 
   - alias: temp_high
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.pool_temp
@@ -132,7 +129,6 @@ automation:
       service: notify.notify
 
   - alias: temp_high
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.pool_temp_fahrenheit

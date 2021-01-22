@@ -3,12 +3,17 @@ sensor:
   - platform: template
     sensors:
       e_fc:
-        value_template: "{{ ( 0.23 * (1 + states('input_number.e_fc_adjust')|float / 100 ) * ( 14 - states('sensor.ph')|float) ** ( 1 / (400 - states('sensor.orp')|float) ) * ([4.1, states('sensor.ph')|float]|max - 4.1) ** ( ( states('sensor.orp')|float - 516)/145)
-          + 10.0 ** ( (states('sensor.orp')|float + states('sensor.ph')|float * 70 -1282) / 40 ) ) |round(1) }}"
+        value_template: >-
+          {{ (0.23 * (1 + states('input_number.e_fc_adjust')|float / 100 ) *
+          ( 14 - states('sensor.ph')|float) ** ( 1 / (400 - states('sensor.orp')|float) ) *
+          ([4.2, states('sensor.ph')|float]|max - 4.1) ** ( ( states('sensor.orp')|float - 516)/145) +
+          10.0 ** ( (states('sensor.orp')|float + states('sensor.ph')|float * 70 - 1282) / 40 ) ) |round(1) }}
         unit_of_measurement: ppm
-        # icon_template: mdi:chemical-weapon
         icon_template: mdi:react
         friendly_name: "Estimated FC"
+        # TODO: This can determine an error:
+        # ZeroDivisionError: 0.0 cannot be raised to a negative power
+        # ([4.1, states('sensor.ph')|float]|max - 4.1) ** ( ( states('sensor.orp')|float - 516)/145)
 
 input_number:
   e_fc_adjust:
@@ -27,8 +32,6 @@ input_number:
 
 automation:
   - alias: fc_ok
-    id: '1559638825701'
-    initial_state: true
     trigger:
       platform: numeric_state
       entity_id: sensor.e_fc
@@ -42,8 +45,6 @@ automation:
       data:
         name: default
   - alias: fc_high
-    id: '1559638825702'
-    initial_state: true
     trigger:
       platform: numeric_state
       entity_id: sensor.e_fc
@@ -57,8 +58,6 @@ automation:
         name: danger
 
   - alias: fc_low
-    id: '1559638825703'
-    initial_state: true
     trigger:
       platform: numeric_state
       entity_id: sensor.e_fc
@@ -72,8 +71,6 @@ automation:
         name: algae
 
   - alias: fc_target
-    id: '1559146873657'
-    initial_state: true
     trigger:
       - platform: state
         entity_id: input_number.fc_target

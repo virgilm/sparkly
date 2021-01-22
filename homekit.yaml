@@ -6,7 +6,6 @@
       - switch.orp
       - switch.turbo
       - sensor.pool_temp_homekit
-#     - sensor.exterior_temperature
   entity_config:
     switch.pump:
       name: Pump
@@ -22,7 +21,5 @@
       type: valve
     sensor.pool_temp_homekit:
       name: Water Temperature
-#    sensor.exterior_temperature:
-#      name: Ext. Temperature
   name: Pool Controller
   port: 56332

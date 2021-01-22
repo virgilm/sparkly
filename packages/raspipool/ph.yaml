@@ -44,8 +44,6 @@ input_number:
 
 automation:
   - alias: ph_start
-    id: '1559669855764'
-    initial_state: true
     trigger:
     - platform: state
       entity_id: switch.ph
@@ -59,8 +57,6 @@ automation:
       entity_id: switch.ph
 
   - alias: ph_high
-    id: '1559049859759'
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.ph
@@ -75,8 +71,6 @@ automation:
       service: notify.notify
 
   - alias: ph_low
-    id: '1559049839760'
-    initial_state: true
     trigger:
     - platform: numeric_state
       entity_id: sensor.ph
@@ -91,8 +85,6 @@ automation:
       service: notify.notify
 
   - alias: ph_bad
-    id: '1559049893756'
-    initial_state: true
     trigger:
     - platform: template
       value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
@@ -109,8 +101,6 @@ automation:
       entity_id: automation.ph_bad
 
   - alias: ph_target
-    id: '1559146893656'
-    initial_state: true
     trigger:
       - platform: state
         entity_id: input_number.ph_target

@@ -1,10 +1,10 @@
 title: Raspipool
 views:
   - badges:
-      - sensor.exterior_temperature
       - sensor.e_fc
       - sensor.cycle_pool
-      - sensor.exterior_condition
+      - sensor.simple_date
+      - sensor.simple_time
     title: Pool
     panel: false
     icon: 'mdi:pool'
@@ -172,7 +172,7 @@ views:
                 card:
                   type: button
                   entity: switch.turbo
-                  icon: mdi:speedometer
+                  icon: mdi:car-turbocharger
                   tap_action:
                     action: toggle
               - type: conditional
@@ -224,9 +224,9 @@ views:
                 theme: default
                 entity: sensor.flow_rate
                 severity:
-                  green: 0
-                  red: 8
-                  yellow: 5
+                  green: 3
+                  red: 0
+                  yellow: 9
                 name: Flow
                 type: gauge
               - type: button
@@ -473,9 +473,7 @@ views:
               theme: default
               unit: gal
               name: Chlorine Tank Low (gal)
-          - entity: input_boolean.notify_seasson
         type: entities
-        show_header_toggle: true
   - badges: []
     title: Settings
     icon: 'mdi:tune'
@@ -505,18 +503,9 @@ views:
             name: Quality
           - entity: input_datetime.recirculation
             name: Turnover rate
-          - entity: input_boolean.turbo
-          - type: conditional
-            conditions:
-              - entity: input_boolean.turbo
-                state: "on"
-            row:
-              entity: input_number.turbo
-              theme: default
           - label: Filter
             type: section
           - entity: input_datetime.cycle_start
-          - entity: input_number.second_cycle
           - entity: sensor.cycle_pool
           - entity: input_number.cycle
         type: entities
@@ -546,7 +535,7 @@ views:
         show_header_toggle: false
   - badges:
       - sun.sun
-      - sensor.time
+      - sensor.simple_time
       - sensor.cycle_pool
       - input_number.out_of_order
     title: Advanced
@@ -631,3 +620,131 @@ views:
                   confirmation:
                     text: Are you sure you want to calibrate?
                   service: script.calibrate_orp
+
+  - badges: []
+    title: Pump Control
+    icon: 'mdi:engine'
+    cards:
+      - type: entities
+        title: Pump Control
+        entities:
+          - input_select.type_of_sched
+          - input_boolean.turbo
+          - type: conditional
+            conditions:
+              - entity: input_boolean.turbo
+                state: "on"
+              - entity: input_select.type_of_sched
+                state_not: "Schedule"
+            row:
+              entity: input_number.turbo
+              theme: default
+          - type: conditional
+            conditions:
+              - entity: input_select.type_of_sched
+                state: "Automatic"
+            row:
+              entity: input_datetime.cycle_start
+
+# Cards for Tariff Type
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Tariff"
+        card:
+          type: custom:scheduler-card
+          title: Utility Tariffs
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+                - input_number.tariff
+          groups:
+            - name: "Utility Tariff"
+              icon: power-plug
+              include:
+                - input_number.tariff
+          customize:
+            input_number.tariff:
+              actions:
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.13
+  # state: {{input_number.peak_tariff_utility}}
+                  name: "Peak"
+                  icon: mdi:cash-100
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.04
+  # state: {{input_number.partial_peak_tariff_utility}}
+                  name: "Partial Peak"
+                  icon: mdi:cash-multiple
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.01
+  # state: {{input_number.off_peak_tariff_utility}}
+                  name: "Off Peak"
+                  icon: mdi:cash
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Tariff"
+        card:
+          title: Tariffs
+          entities:
+            - label: Tariffs
+              type: section
+            - entity: input_number.peak_tariff_utility
+            - entity: input_number.partial_peak_tariff_utility
+            - entity: input_number.off_peak_tariff_utility
+          type: entities
+          show_header_toggle: false
+
+
+# Cards for Scheduled type
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Schedule"
+        card:
+          title: Pump Schedule
+          type: custom:scheduler-card
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+            - switch.pump
+          groups:
+            - name: "Main Pump"
+              icon: mdi:car-turbocharger
+              include:
+                - switch.pump
+          customize:
+            switch.pump:
+              actions:
+                - service: turn_on
+                - service: turn_off
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Schedule"
+          - entity: input_boolean.turbo
+            state: "on"
+        card:
+          title: High Speed Schedule
+          type: custom:scheduler-card
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+            - switch.turbo
+          groups:
+            - name: "High Speed Pump"
+              icon: mdi:car-turbocharger
+              include:
+                - switch.turbo
+          customize:
+            switch.turbo:
+              actions:
+                - service: turn_on
+                - service: turn_off

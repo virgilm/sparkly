@@ -39,8 +39,6 @@ input_number:
 
 automation:
   - alias: orp_start
-    id: '1559639825764'
-    initial_state: true
     trigger:
     - platform: state
       entity_id: switch.orp
@@ -54,8 +52,6 @@ automation:
       entity_id: switch.orp
 
   - alias: orp_bad
-    id: '1559149493756'
-    initial_state: true
     trigger:
     - platform: template
       value_template: '{{state_attr("sensor.orp", "standard_deviation") > 20 }}'
