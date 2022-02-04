@@ -71,7 +71,6 @@ input_select:
       - Schedule
       - Automatic
       - Tariff
-    initial: Schedule
     icon: mdi:engine
 
 automation:

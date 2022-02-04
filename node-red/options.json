@@ -1,0 +1,18 @@
+{
+  "certfile": "fullchain.pem",
+  "credential_secret": "cafebabe",
+  "http_node": {
+    "password": "",
+    "username": ""
+  },
+  "http_static": {
+    "password": "",
+    "username": ""
+  },
+  "init_commands": [],
+  "keyfile": "privkey.pem",
+  "npm_packages": [],
+  "ssl": false,
+  "system_packages": [],
+  "theme": "default"
+}

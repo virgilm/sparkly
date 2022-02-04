@@ -1,0 +1,59 @@
+input_number:
+  chlorine_production:
+    min: 0
+    max: 57
+    step: 1
+    unit_of_measurement: "g/h"
+    icon: mdi:atom
+    name: Chlorine Production
+  chlorine_production_imperial:
+    min: 0
+    max: 3
+    step: 0.1
+    unit_of_measurement: "lb/day"
+    icon: mdi:atom
+    name: Chlorine Production
+
+sensor:
+  - platform: history_stats
+    name: salt_on_today
+    entity_id: switch.orp
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: template
+    sensors:
+      chlorine_today:
+        friendly_name: "Chlorine today"
+        unit_of_measurement: "g"
+        value_template: >-
+          {{ states('input_number.chlorine_production')|float * states('sensor.salt_on_today')|float }}
+      chlorine_today_imperial:
+        friendly_name: "Chlorine today"
+        unit_of_measurement: "oz"
+        value_template: >-
+          {{ (states('input_number.chlorine_production_imperial')|float * states('sensor.salt_on_today')|float / 24 * 16) | round(2) }}
+
+automation:
+  - alias: salt_sync_1
+    trigger:
+      - platform: state
+        entity_id: input_number.chlorine_production
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.chlorine_production_imperial
+          value: "{{(states('input_number.chlorine_production')|float / 18.8997)| round(1) }}"
+
+  - alias: salt_sync_2
+    trigger:
+      - platform: state
+        entity_id: input_number.chlorine_production_imperial
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.chlorine_production
+          value: "{{(states('input_number.chlorine_production_imperial')|float * 18.8997)| round(0) }}"

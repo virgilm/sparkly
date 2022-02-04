@@ -1,0 +1,222 @@
+badges: []
+title: Chemical
+icon: "mdi:flask"
+cards:
+  # Acid Control Card
+  - title: Muriatic Acid ( decrease pH )
+    type: entities
+    show_header_toggle: false
+    entities:
+      - label: Acid Pump Configuration
+        type: section
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.muriatic_tank
+          name: Tank Level (l)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.muriatic_tank_imperial
+          name: Tank Level (gal)
+      - entity: input_number.muriatic_concentration
+        name: Concentration (%)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.muriatic_speed
+          name: Injection Speed (ml/min)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.muriatic_speed_imperial
+          name: Injection Speed (GPD)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: sensor.muriatic_inject
+          name: Next Acid Injection (ml)
+          tap_action:
+            action: none
+          style: |
+            :host {
+              color: gray;
+            }
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: sensor.muriatic_inject_imperial
+          name: Next Acid Injection (oz)
+          tap_action:
+            action: none
+          style: |
+            :host {
+              color: gray;
+            }
+      - label: Acid Pump Control
+        type: section
+      - entity: switch.ph
+        name: Acid Injection Pump
+        secondary_info: last-changed
+      - entity: input_boolean.lock_muriatic
+        name: Disable Automatic Injection
+      - label: pH Control
+        type: section
+      - entity: input_number.ph_target
+        name: pH target
+      - entity: sensor.ph_readonly
+        name: pH actual
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+
+  # Chlorine Control Card
+  - type: conditional
+    conditions:
+      - entity: input_boolean.salt_system
+        state_not: "on"
+    card:
+      title: Sanitizer ( increase ORP )
+      type: entities
+      show_header_toggle: false
+      entities:
+        - label: Chlorine Pump Configuration
+          type: section
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state_not: "on"
+          row:
+            entity: input_number.bleach_tank
+            name: Tank Level (l)
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state: "on"
+          row:
+            entity: input_number.bleach_tank_imperial
+            name: Tank Level (gal)
+        - entity: input_number.bleach_concentration
+          name: Concentration (%)
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state_not: "on"
+          row:
+            entity: input_number.bleach_speed
+            name: Injection Speed (ml/min)
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state: "on"
+          row:
+            entity: input_number.bleach_speed_imperial
+            name: Injection Speed (GPD)
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state_not: "on"
+          row:
+            entity: sensor.bleach_inject
+            name: Next bleach injection (ml)
+            tap_action:
+              action: none
+            style: |
+              :host {
+                color: gray;
+              }
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state: "on"
+          row:
+            entity: sensor.bleach_inject_imperial
+            name: Next bleach injection (oz)
+            tap_action:
+              action: none
+            style: |
+              :host {
+                color: gray;
+              }
+        - label: Chlorine Pump Control
+          type: section
+        - entity: switch.orp
+          name: Chlorine Injection Pump
+          secondary_info: last-changed
+        - entity: input_boolean.lock_bleach
+          name: Disable Automatic Injection
+        - label: Free Chlorine (FC)
+          type: section
+        - entity: input_number.fc_target
+          name: FC target
+        - entity: sensor.e_fc
+          name: Estimated FC actual
+          tap_action:
+            action: none
+          style: |
+            :host {
+              color: gray;
+            }
+        - entity: input_number.e_fc_adjust
+          name: Adjust ±% FC-ORP
+
+  # Salt System Control Card
+  - type: conditional
+    conditions:
+      - entity: input_boolean.salt_system
+        state: "on"
+    card:
+      title: Salt System ( increase ORP )
+      type: entities
+      show_header_toggle: false
+      entities:
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state: "on"
+          row:
+            entity: input_number.chlorine_production_imperial
+            name: Chlorine Production (lb/day)
+        - type: conditional
+          conditions:
+            - entity: input_boolean.imperial
+              state_not: "on"
+          row:
+            entity: input_number.chlorine_production
+            name: Chlorine Production (g/h)
+        - label: Salt System Control
+          type: section
+        - entity: switch.orp
+          name: Salt Chlorinator
+          secondary_info: last-changed
+        - entity: input_boolean.lock_bleach
+          name: Disable Salt System
+        - label: Free Chlorine (FC)
+          type: section
+        - entity: input_number.fc_target
+          name: FC target
+        - entity: sensor.e_fc
+          name: Estimated FC actual
+          tap_action:
+            action: none
+          style: |
+            :host {
+              color: gray;
+            }
+        - entity: input_number.e_fc_adjust
+          name: Adjust ±% FC-ORP

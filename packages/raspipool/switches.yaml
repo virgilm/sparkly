@@ -1,19 +1,21 @@
 # Part of raspipool project @ github (by segalion at gmail)
 
 switch:
-#  - platform: rpi_gpio
-#    ports:
-# gpio_in_BCM_number: name
-# example=> pin#35 = 'gpio.24' = rpi24 = BCM_19 => 19: pump
-# execute 'gpio readall' to see all gpios an theis states in console
-#     17: Pump
-#     27: Turbo
-#     20: ph
-#     21: orp
-#    invert_logic: true
+  #  - platform: rpi_gpio
+  #    ports:
+  # gpio_in_BCM_number: name
+  # example=> pin#35 = 'gpio.24' = rpi24 = BCM_19 => 19: pump
+  # execute 'gpio readall' to see all gpios an theis states in console
+  #     17: Pump
+  #     27: Turbo
+  #     20: ph
+  #     21: orp
+  #    invert_logic: true
   - platform: sequent_microsystems
     name: Pump
     relay: 4
+  #   value_template: >-
+  #     {{ states('input_number.daily_runtime') }}
   - platform: sequent_microsystems
     name: Turbo
     relay: 3
@@ -22,25 +24,83 @@ switch:
     relay: 7
   - platform: sequent_microsystems
     name: orp
-    relay: 8
+    relay: 2
+
+  - platform: template
+    switches:
+      maintenance:
+        value_template: >
+          {{ is_state('input_boolean.maintenance', 'on') }}
+        icon_template: >-
+          {{"mdi:wrench" }}
+        turn_on:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.maintenance
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.boost_24h
+          - service: switch.turn_off
+            entity_id: switch.pump
+          - service: frontend.set_theme
+            data:
+              name: maintenance
+        turn_off:
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.maintenance
+          - service: frontend.set_theme
+            data:
+              name: default
+
+  - platform: template
+    switches:
+      boost_24h:
+        icon_template: >-
+          {% if is_state('input_boolean.maintenance', 'on') %}
+            mdi:lock
+          {% else %}
+            {% if is_state('input_boolean.boost_24h', 'on') %}
+              mdi:engine
+            {% else %}
+              mdi:engine-off
+            {% endif %}
+          {% endif %}
+        value_template: >
+          {{ is_state('input_boolean.boost_24h', 'on') }}
+        turn_on:
+          - condition: state
+            entity_id: input_boolean.maintenance
+            state: "off"
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.boost_24h
+          - service: input_number.set_value
+            data_template:
+              entity_id: input_number.daily_runtime
+              value: 24
+          - service: switch.turn_on
+            entity_id: switch.pump
+        turn_off:
+          - service: input_boolean.turn_off
+            entity_id: input_boolean.boost_24h
+          - service: switch.turn_off
+            entity_id: switch.pump
 
 input_boolean:
+  # also used for lock salt
   lock_bleach:
-    initial: off
     icon: mdi:lock
   lock_muriatic:
-    initial: off
     icon: mdi:lock
-
 
 binary_sensor:
   - platform: template
     sensors:
       bleach:
-        friendly_name: "Chlorine pump"
-#        entity_id:
-#          - switch.orp
-#          - input_boolean.lock_bleach
+        # also used for salt system
+        friendly_name: >-
+          {% if is_state('input_boolean.salt_system', 'on') %}
+            Salt System
+          {% else %}
+            Chlorine Pump
+          {% endif %}
         device_class: plug
         value_template: "{{ is_state('switch.orp', 'on') }}"
         icon_template: >-
@@ -48,14 +108,24 @@ binary_sensor:
             mdi:lock
           {% endif %}
       muriatic:
-        friendly_name: "Acid pump"
-#        entity_id:
-#          - switch.ph
-#          - input_boolean.lock_muriatic
+        friendly_name: "Acid Pump"
         device_class: plug
         value_template: "{{ is_state('switch.ph', 'on') }}"
         icon_template: >-
           {% if is_state('input_boolean.lock_muriatic', 'on') %}
             mdi:lock
           {% endif %}
-
+      pump:
+        friendly_name: "Main Pump"
+        device_class: plug
+        value_template: "{{ is_state('switch.pump', 'on') }}"
+        icon_template: >-
+          {% if is_state('input_boolean.maintenance', 'on') %}
+            mdi:lock
+          {% else %}
+            {% if is_state('switch.pump', 'on') %}
+              mdi:engine
+            {% else %}
+              mdi:engine-off
+            {% endif %}
+          {% endif %}

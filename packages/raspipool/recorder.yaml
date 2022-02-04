@@ -1,4 +1,3 @@
-
 recorder:
   purge_keep_days: 7
   include:
@@ -6,12 +5,12 @@ recorder:
       - sensor.pump_state
       - sensor.pool_temp
       - sensor.pool_temp_fahrenheit
-      - sensor.orp
-      - sensor.ph
       - sensor.pool_water_temperature
       - sensor.ezo_ph
       - sensor.ezo_orp
-      - sensor.remain_cycles
+      - input_number.ph
+      - input_number.orp
+      - sensor.runtime_left
       - input_number.muriatic_tank
       - input_number.bleach_tank
       - switch.ph

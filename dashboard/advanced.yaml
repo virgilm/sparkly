@@ -1,0 +1,280 @@
+title: Maintenance
+icon: "mdi:cog"
+cards:
+  - title: Maintenance Tasks
+    type: entities
+    show_header_toggle: false
+    entities:
+      - label: Refill Acid Tank
+        type: section
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.muriatic_tank
+          name: Tank Level (l)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.muriatic_tank_imperial
+          name: Tank Level (gal)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.salt_system
+            state_not: "on"
+        row:
+          label: Refill Chlorine Tank
+          type: section
+      - type: conditional
+        conditions:
+          - entity: input_boolean.salt_system
+            state_not: "on"
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.bleach_tank
+          name: Tank Level (l)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.salt_system
+            state_not: "on"
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.bleach_tank_imperial
+          name: Tank Level (gal)
+      - label: pH Setting
+        type: section
+      - entity: input_number.ph_target
+        name: pH target
+      - entity: sensor.ph_readonly
+        name: pH actual
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+      - label: Free Chlorine Setting
+        type: section
+      - entity: input_number.fc_target
+        name: FC target
+      - entity: sensor.e_fc
+        name: Estimated FC actual
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+
+  - title: Pump Control
+    type: entities
+    show_header_toggle: false
+    entities:
+      - input_select.type_of_sched
+      - type: conditional
+        conditions:
+          - entity: input_boolean.turbo
+            state: "on"
+          - entity: input_select.type_of_sched
+            state_not: "Schedule"
+        row:
+          entity: input_number.turbo
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Automatic"
+        row:
+          entity: input_datetime.cycle_start
+
+      # Cards for Tariff Type
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Tariff"
+        row:
+          type: custom:scheduler-card
+          title: Utility Tariffs
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+            - input_number.tariff
+          groups:
+            - name: "Utility Tariff"
+              icon: power-plug
+              include:
+                - input_number.tariff
+          customize:
+            input_number.tariff:
+              actions:
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.13
+                  # state: {{input_number.peak_tariff_utility}}
+                  name: "Peak"
+                  icon: mdi:cash-100
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.04
+                  # state: {{input_number.partial_peak_tariff_utility}}
+                  name: "Partial Peak"
+                  icon: mdi:cash-multiple
+                - service: input_number.set_value
+                  service_data:
+                    value: 0.01
+                  # state: {{input_number.off_peak_tariff_utility}}
+                  name: "Off Peak"
+                  icon: mdi:cash
+      # Cards for Scheduled type
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Schedule"
+        row:
+          title: Pump Schedule
+          type: custom:scheduler-card
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+            - switch.pump
+          groups:
+            - name: "Main Pump"
+              icon: mdi:car-turbocharger
+              include:
+                - switch.pump
+          customize:
+            switch.pump:
+              actions:
+                - service: turn_on
+                - service: turn_off
+      - type: conditional
+        conditions:
+          - entity: input_select.type_of_sched
+            state: "Schedule"
+          - entity: input_boolean.turbo
+            state: "on"
+        row:
+          title: High Speed Schedule
+          type: custom:scheduler-card
+          standard_configuration: False
+          am_pm: True
+          discover_existing: false
+          include:
+            - switch.turbo
+          groups:
+            - name: "High Speed Pump"
+              icon: mdi:car-turbocharger
+              include:
+                - switch.turbo
+          customize:
+            switch.turbo:
+              actions:
+                - service: turn_on
+                - service: turn_off
+      - entity: sensor.daily_runtime_readonly
+        name: Pump scheduled to run daily
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+      - entity: sensor.time_to_run_daily
+        name: Time pump should run today (at current temperature)
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+          :host {
+            --paper-item-icon-color:
+              {% if is_state("input_boolean.enough_pump_runtime", "on") %}
+                green
+              {% else %}
+                red
+              {% endif %}
+          }
+
+  # Tariff card
+  - type: conditional
+    conditions:
+      - entity: input_select.type_of_sched
+        state: "Tariff"
+    card:
+      title: Utility Tariffs
+      type: entities
+      show_header_toggle: false
+      entities:
+        - type: divider
+          style:
+            height: 1px
+            margin-left: auto
+            margin-right: auto
+            background: "#c0c6ca"
+        - entity: input_number.peak_tariff_utility
+        - entity: input_number.partial_peak_tariff_utility
+        - entity: input_number.off_peak_tariff_utility
+
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        title: Maintainance/Service
+        cards:
+          - entity: switch.maintenance
+            type: button
+            show_name: true
+            icon_height: 64px
+            name: Maintenance
+            show_icon: true
+          - entity: switch.boost_24h
+            icon_height: 64px
+            type: button
+            show_name: true
+            name: Boost
+            show_icon: true
+      - title: Calibrate Sensors
+        type: horizontal-stack
+        cards:
+          - entity: input_number.calibrate_temp
+            type: button
+            show_name: true
+            name: Temp
+            show_icon: true
+            icon_height: 64px
+            show_state: true
+            hold_action:
+              action: call-service
+              confirmation:
+                text: Are you sure you want to calibrate?
+              service: script.calibrate_temp
+          - entity: input_number.calibrate_ph
+            type: button
+            show_name: true
+            name: pH
+            show_icon: true
+            icon_height: 64px
+            show_state: true
+            hold_action:
+              action: call-service
+              confirmation:
+                text: Are you sure you want to calibrate?
+              service: script.calibrate_ph
+          - entity: input_number.calibrate_orp
+            type: button
+            show_name: true
+            name: ORP
+            show_icon: true
+            icon_height: 64px
+            show_state: true
+            hold_action:
+              action: call-service
+              confirmation:
+                text: Are you sure you want to calibrate?
+              service: script.calibrate_orp

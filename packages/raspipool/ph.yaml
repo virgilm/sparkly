@@ -1,8 +1,8 @@
 sensor:
   - platform: atlas_scientific
-# For serial ports use:
-#   port: /dev/ttyUSB0
-# For I2C enter the hex device id
+    # For serial ports use:
+    #   port: /dev/ttyUSB0
+    # For I2C enter the hex device id
     port: 0x63
     scan_interval: 31536000
     # never scan, scanning happens every 2 mins
@@ -11,94 +11,100 @@ sensor:
   - platform: statistics
     name: ph_stat
     entity_id: sensor.ezo_ph
+    state_characteristic: mean
     max_age:
       minutes: 60
-
   - platform: template
     sensors:
-      ph:
-        unit_of_measurement: 'pH'
-        value_template: >
-          {% if is_state('sensor.ph_stat', 'unknown') %}
-            0
-          {% else %}
-            {{ states('sensor.ph_stat') }}
-          {% endif %}
+      ph_readonly:
+        # readonly copy to show in the UI
+        unit_of_measurement: "pH"
+        value_template: >-
+          {{ states("input_number.ph") }}
+        icon_template: >-
+          {{"mdi:flask-empty"}}
 
 input_number:
+  ph:
+    # set by node red, this remembers the last valid value of ph_stat
+    min: 6.5
+    max: 8.5
+    unit_of_measurement: "pH"
+    icon: mdi:flask-empty
   ph_target:
     min: 6.5
     max: 8.5
-    step: 0.01
-    unit_of_measurement: 'pH'
-    icon: mdi:alpha-h-circle-outline
-    mode: box
+    step: 0.1
+    unit_of_measurement: "pH"
+    icon: mdi:flask-empty-outline
   calibrate_ph:
     min: 4
     max: 10
-    step: 0.01
-    unit_of_measurement: 'pH'
-    icon: mdi:alpha-h-circle-outline
+    step: 0.1
+    unit_of_measurement: "pH"
+    icon: mdi:flask-empty-outline
     mode: box
     initial: 7.4
 
 automation:
   - alias: ph_start
     trigger:
-    - platform: state
-      entity_id: switch.ph
-      to: 'on'
+      - platform: state
+        entity_id: switch.ph
+        to: "on"
+    # if pump is off, turn acid injection off immediately
     condition:
-    - condition: state
-      entity_id: switch.pump
-      state: 'off'
+      - condition: state
+        entity_id: switch.pump
+        state: "off"
     action:
-    - service: switch.turn_off
-      entity_id: switch.ph
+      - service: switch.turn_off
+        entity_id: switch.ph
 
   - alias: ph_high
     trigger:
-    - platform: numeric_state
-      entity_id: sensor.ph
-      above: 7.5
-      for:
-        hours: 48
+      - platform: numeric_state
+        entity_id: input_number.ph
+        above: 7.5
+        for:
+          hours: 48
     condition: []
     action:
-    - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
-        title: 'pH high ({{trigger.to_state.state}})!'
-      service: notify.notify
+      - data_template:
+          message: "pH was high ({{trigger.to_state.state}}) for more than 48h: "
+          title: "pH Too High!"
+        service: notify.notify
 
   - alias: ph_low
     trigger:
-    - platform: numeric_state
-      entity_id: sensor.ph
-      below: 6.9
-      for:
-        hours: 48
+      - platform: numeric_state
+        entity_id: input_number.ph
+        below: 6.9
+        for:
+          hours: 48
     condition: []
     action:
-    - data_template:
-        message: '{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}'
-        title: 'pH low ({{trigger.to_state.state}})!'
-      service: notify.notify
+      - data_template:
+          title: "pH low ({{trigger.to_state.state}})!"
+          message: "{{trigger.to_state.attributes.friendly_name}}: {{trigger.to_state.state}}"
+        service: notify.notify
 
   - alias: ph_bad
+    # check this, probably not working as expected
     trigger:
-    - platform: template
-      value_template: '{{state_attr("sensor.ph", "standard_deviation") > 0.1}}'
+      - platform: template
+        value_template: '{{state_attr("sensor.ph", "standard_deviation") | float(default=0) > 0.1}}'
     condition: []
     action:
-    - service: notify.notify
-      data_template:
-        message: 'It varied between {{state_attr("sensor.ph", "min_value")}} and 
-          {{state_attr("sensor.ph", "max_value")}} over the past 
-          {{(state_attr("sensor.ph", "sampling_size")*30/60)|int}} minutes'
-          # scan_interval: 30 is the scan_interval for the orp probe (orp.yaml) 
-        title: 'pH probe may need calibration!'
-    - service: automation.turn_off
-      entity_id: automation.ph_bad
+      - service: notify.notify
+        data_template:
+          message:
+            'It varied between {{state_attr("sensor.ph_stat", "min_value")}} and
+            {{state_attr("sensor.ph_stat", "max_value")}} over the past
+            {{(state_attr("sensor.ph_stat", "sampling_size")*30/60)|int}} minutes'
+          title: "pH probe may need calibration!"
+      - service: automation.turn_off
+        entity_id: automation.ph_bad
 
   - alias: ph_target
     trigger:

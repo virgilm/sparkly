@@ -6,7 +6,6 @@ homeassistant:
   unit_system: imperial
   # customize: !include customize.yaml
   packages: !include_dir_named packages
-  external_url: "http://ivmcontrol.dscloud.me:8123"
   internal_url: "http://homeassistant.local:8123"
 
 # Disable default config, selectively enable services needed.
@@ -17,6 +16,9 @@ homeassistant:
 # config:
 # discovery:
 frontend:
+  extra_module_url:
+    - /local/card-mod/card-mod.js
+    - /local/custom-ui/custom-ui.js
 history:
 input_boolean:
 input_datetime:
@@ -36,6 +38,20 @@ system_health:
 # zeroconf:
 # zone
 
+sensor:
+  - platform: time_date
+    display_options:
+      - "time"
+      - "date"
+  - platform: uptime
+    name: "HA Runtime"
+  - platform: template
+    sensors:
+      runtime_mins:
+        friendly_name: "Home Assistant Runtime"
+        value_template: >
+          {{ (((as_timestamp(now()) - as_timestamp(states('sensor.ha_runtime'))) ) /60  ) | int  }}
+
 tts:
   - platform: google_translate
 logger:
@@ -48,31 +64,30 @@ logger:
     zeroconf: error
     homeassistant.components.websocket_api.http.connection: error
 
-group: !include groups.yaml
-homekit: !include homekit.yaml
-emulated_hue:
-  listen_port: 80
-  expose_by_default: false
-  entities:
-    switch.pump:
-      name: Pump
-      hidden: false
-    switch.ph:
-      name: Acid Pump
-      hidden: false
-    switch.orp:
-      name: Chlorine Pump
-      hidden: false
-    switch.turbo:
-      name: Turbo
-      hidden: false
 script: !include scripts.yaml
 lovelace:
   mode: yaml
   resources:
     - url: /local/scheduler-card/scheduler-card.js?v=0
       type: module
+    - url: /local/kiosk-mode/kiosk-mode.js?v=1.2.1
+      type: module
+panel_iframe:
+  node_red:
+    title: Node Red
+    icon: mdi:wrench
+    url: http://sparkly.local:46836/
+panel_custom:
+  - name: panel-redirect
+    # url_path needs to be unique for each panel_custom config
+    url_path: redirect-server-controls
+    sidebar_title: Server Controls
+    sidebar_icon: mdi:server
+    module_url: /local/panel-redirect.js
+    config:
+      # Where you want to redirect to
+      target: /config/server_control
 shell_command:
   calibrate: 'python calibrate.py "{{ device }}" "{{ target }}"'
 system_log:
-   max_entries: 500
+  max_entries: 500

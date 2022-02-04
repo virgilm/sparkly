@@ -1,0 +1,84 @@
+badges: []
+title: History
+icon: "mdi:chart-line"
+cards:
+  - type: conditional
+    conditions:
+      - entity: input_boolean.imperial
+        state: "on"
+    card:
+      title: last 3 hours
+      type: history-graph
+      hours_to_show: 3
+      entities:
+        - entity: sensor.pump_state
+        - entity: switch.ph
+          name: Acid inj.
+        - entity: switch.orp
+          name: Chlorine inj.
+        - entity: input_number.ph
+          name: pH
+        - entity: input_number.orp
+          name: ORP
+        - entity: sensor.pool_temp_fahrenheit
+          name: Water Temp.
+  - type: conditional
+    conditions:
+      - entity: input_boolean.imperial
+        state_not: "on"
+    card:
+      title: last 3 hours
+      type: history-graph
+      hours_to_show: 3
+      entities:
+        - entity: sensor.pump_state
+        - entity: switch.ph
+          name: Acid inj.
+        - entity: switch.orp
+          name: Chlorine inj.
+        - entity: input_number.ph
+          name: pH
+        - entity: input_number.orp
+          name: ORP
+        - entity: sensor.pool_temp
+          name: Water Temp.
+  - type: conditional
+    conditions:
+      - entity: input_boolean.imperial
+        state: "on"
+    card:
+      title: last 3 days
+      type: history-graph
+      hours_to_show: 72
+      entities:
+        - entity: sensor.pump_state
+        - entity: switch.ph
+          name: Acid inj.
+        - entity: switch.orp
+          name: Chlorine inj.
+        - entity: input_number.ph
+          name: pH
+        - entity: input_number.orp
+          name: ORP
+        - entity: sensor.pool_temp_fahrenheit
+          name: Water Temp.
+  - type: conditional
+    conditions:
+      - entity: input_boolean.imperial
+        state_not: "on"
+    card:
+      title: last 3 days
+      type: history-graph
+      hours_to_show: 72
+      entities:
+        - entity: sensor.pump_state
+        - entity: switch.ph
+          name: Acid inj.
+        - entity: switch.orp
+          name: Chlorine inj.
+        - entity: input_number.ph
+          name: pH
+        - entity: input_number.orp
+          name: ORP
+        - entity: sensor.pool_temp
+          name: Water Temp.

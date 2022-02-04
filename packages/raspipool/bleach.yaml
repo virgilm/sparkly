@@ -4,91 +4,111 @@ sensor:
       bleach_tank:
         friendly_name: "Bleach tank"
         value_template: "{{ states('input_number.bleach_tank')|round(2)}}"
+      bleach_inject:
+        friendly_name: "Chlorine injection"
+        value_template: "{{ states('input_number.bleach_inject')|round(0)}}"
+      bleach_inject_imperial:
+        friendly_name: "Chlorine injection"
+        value_template: "{{ states('input_number.bleach_inject_imperial')|round(1)}}"
+      time_to_inject:
+        # time to inject chlorine (in secs)
+        # depends on chlorine vs. salt
+        value_template: >-
+          {% if is_state("input_boolean.salt_system", "on") %}
+            "{{ [0 , 60 * 60 * states('input_number.bleach_inject')|float/ states('input_number.chlorine_production')|float ]|max|int }}"
+          {% else %}
+            "{{ [0 , 60 * states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }}"
+          {% endif %}
 
   - platform: history_stats
     name: bleach_on_last_hour
     entity_id: switch.orp
-    state: 'on'
+    state: "on"
     type: time
-    end: '{{now().replace(minute=0).replace(second=0)}}'
+    end: "{{now().replace(minute=0).replace(second=0)}}"
     duration: 01:00:00
 
   - platform: history_stats
     name: bleach_on_last_48h
     entity_id: switch.orp
-    state: 'on'
+    state: "on"
     type: time
-    end: '{{now()}}'
+    end: "{{now()}}"
     duration: 48:00:00
 
 input_number:
   bleach_tank:
     min: 0
     max: 76
-    step: 0.1
-    unit_of_measurement: 'l'
+    step: 1
+    unit_of_measurement: "l"
     icon: mdi:blood-bag
     name: Chlorine Tank
-    mode: box
   bleach_tank_imperial:
     min: 0
     max: 20
-    step: 0.1
-    unit_of_measurement: 'gal'
+    step: 1
+    unit_of_measurement: "gal"
     icon: mdi:blood-bag
     name: Chlorine Tank
-    mode: box
   bleach_concentration:
-    min: 1
-    max: 15
-    step: .25
-    unit_of_measurement: '%'
+    min: 5
+    max: 30
+    step: 1
+    unit_of_measurement: "%"
     icon: mdi:water-percent
   bleach_speed:
     min: 0
     max: 263
     step: 1
-    unit_of_measurement: 'ml/min'
+    unit_of_measurement: "ml/min"
     icon: mdi:needle
-    mode: box
   bleach_speed_imperial:
     min: 0.1
     max: 100
     step: 0.1
-    unit_of_measurement: 'gal/day (GPD)'
+    unit_of_measurement: "gal/day"
     icon: mdi:needle
-    mode: box
   notify_bleach_high:
     name: Chlorine Overfeed
     min: 0
     max: 15.2
     step: 0.1
-    unit_of_measurement: 'l/48h'
+    unit_of_measurement: "l/48h"
+    icon: mdi:format-color-fill
   notify_bleach_high_imperial:
     name: Chlorine Overfeed
     min: 0
     max: 4
     step: 0.1
-    unit_of_measurement: 'gal/48h'
+    unit_of_measurement: "gal/48h"
+    icon: mdi:format-color-fill
   notify_bleach_tank:
     name: Chlorine Tank Low
     min: 0
     max: 8
     step: 0.1
-    unit_of_measurement: 'l'
+    unit_of_measurement: "l"
     icon: mdi:flask-empty-outline
   notify_bleach_tank_imperial:
     name: Chlorine Tank Low
     min: 0
     max: 2
     step: 0.1
-    unit_of_measurement: 'gal'
+    unit_of_measurement: "gal"
     icon: mdi:flask-empty-outline
   bleach_inject:
     min: 0
     max: 10000
     step: 1
-    unit_of_measurement: 'ml'
+    unit_of_measurement: "ml"
+    icon: mdi:beaker
+    mode: box
+  bleach_inject_imperial:
+    min: 0
+    max: 400
+    step: 1
+    unit_of_measurement: "oz"
     icon: mdi:beaker
     mode: box
 
@@ -103,7 +123,7 @@ automation:
       - service: input_number.set_value
         data_template:
           entity_id: input_number.bleach_tank_imperial
-          value: "{{(states('input_number.bleach_tank')|float / 3.78541)| round(1) }}"
+          value: "{{(states('input_number.bleach_tank')|float / 3.78541)| round(0) }}"
 
   - alias: bleach_sync_2
     trigger:
@@ -114,10 +134,10 @@ automation:
       - service: input_number.set_value
         data_template:
           entity_id: input_number.bleach_tank
-          value: "{{(states('input_number.bleach_tank_imperial')|float * 3.78541)| round(1) }}"
+          value: "{{(states('input_number.bleach_tank_imperial')|float * 3.78541)| round(0) }}"
 
   # Sync Injection Speed capacity (ml/min vs GPD)
-  - alias: bleach_inj_sync_1
+  - alias: bleach_speed_sync_1
     trigger:
       - platform: state
         entity_id: input_number.bleach_speed
@@ -128,7 +148,7 @@ automation:
           entity_id: input_number.bleach_speed_imperial
           value: "{{(states('input_number.bleach_speed')|float / 2.6287)| round(1) }}"
 
-  - alias: bleach_inj_sync_2
+  - alias: bleach_speed_sync_2
     trigger:
       - platform: state
         entity_id: input_number.bleach_speed_imperial
@@ -139,12 +159,40 @@ automation:
           entity_id: input_number.bleach_speed
           value: "{{(states('input_number.bleach_speed_imperial')|float * 2.6287)| round(1) }}"
 
+  # Sync Injection Speed capacity (ml/min vs GPD)
+  - alias: bleach_inj_sync_1
+    trigger:
+      - platform: state
+        entity_id: input_number.bleach_inject
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_inject_imperial
+          value: "{{(states('input_number.bleach_inject')|float * 0.033814)| round(1) }}"
+
+  - alias: bleach_inj_sync_2
+    trigger:
+      - platform: state
+        entity_id: input_number.bleach_inject_imperial
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_inject
+          value: "{{(states('input_number.bleach_inject_imperial')|float / 0.033814)| round(0) }}"
+
   # Sync Overfeed warning (l/48h vs gal/48h)
   - alias: chlorine_overfeed_sync_1
     trigger:
       - platform: state
         entity_id: input_number.notify_bleach_high
-    condition: []
+    condition:
+      condition: not
+      conditions:
+        - condition: state
+          entity_id: input_boolean.salt_system
+          state: "on"
     action:
       - service: input_number.set_value
         data_template:
@@ -188,98 +236,150 @@ automation:
   # Bleach Section
   - alias: bleach_every_hour
     trigger:
-    - platform: time_pattern
-      minutes: 1
-    condition: []
+      - platform: time_pattern
+        minutes: 1
+    condition:
+      # only do this if not a salt system
+      condition: not
+      conditions:
+        - condition: state
+          entity_id: input_boolean.salt_system
+          state: "on"
     action:
-    - service: input_number.set_value
-      data_template:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_tank
+          value: " {{ [0, ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) )] | max | round(2) }} "
+      # turn off acid injection if the tank is empty
+      - condition: numeric_state
         entity_id: input_number.bleach_tank
-        value: " {{ [0, ( states('input_number.bleach_tank')|float - ( states('sensor.bleach_on_last_hour')|float * states('input_number.bleach_speed')|int * 6 / 100 ) )] | max | round(2) }} "
+        below: 0.1
+      - condition: state
+        entity_id: input_boolean.lock_bleach
+        state: "off"
+      - entity_id: switch.orp
+        service: switch.turn_off
+      - entity_id: input_boolean.lock_bleach
+        service: input_boolean.turn_on
+      - data_template:
+          title: "Chlorine Tank Depleted!"
+          message: "Chlorine injection disabled."
+        service: notify.notify
 
   - alias: bleach_tank_low
     trigger:
       platform: template
       value_template: >-
-        {% if states('input_number.notify_bleach_tank')|int > 0 and (states('input_number.bleach_tank')|float < states('input_number.notify_bleach_tank')|float) %}
+        {% if states('input_number.bleach_tank') < states('input_number.notify_bleach_tank') %}
           true
         {% endif %}
-    condition: []
+    condition:
+      condition: numeric_state
+      entity_id: input_number.notify_bleach_tank
+      above: 0
     action:
-    - data_template:
-        title: "Chlorine Tank Low!"
-        message: >-
-          {% if is_state("input_boolean.imperial", "on") %}
-            {{states('input_number.bleach_tank_imperial')|float}} gallons left!
-          {% else %}
-            {{states('input_number.bleach_tank')|float}} liters left!
-          {% endif %}
-      service: notify.notify
+      - data_template:
+          title: "Chlorine Tank Low!"
+          message: >-
+            {% if is_state("input_boolean.imperial", "on") %}
+              {{states('input_number.bleach_tank_imperial')|float}} gallons left!
+            {% else %}
+              {{states('input_number.bleach_tank')|float}} liters left!
+            {% endif %}
+        service: notify.notify
 
   - alias: bleach_high
     trigger:
       platform: template
       value_template: >-
-        {% if states('input_number.notify_bleach_high')|float> 0 and
-               states('sensor.bleach_on_last_48h')|float * states('input_number.bleach_speed')|float * 60 / 1000 > states('input_number.notify_bleach_high')|float %}
+        {% if states('sensor.bleach_on_last_48h')|float * states('input_number.bleach_speed')|float * 60 / 1000 > states('input_number.notify_bleach_high')|float %}
           true
         {% endif %}
-    condition: []
+    condition:
+      condition: and
+      conditions:
+        - condition: numeric_state
+          entity_id: input_number.notify_bleach_high
+          above: 0
+        - condition: not
+          conditions:
+            - condition: state
+              entity_id: input_boolean.salt_system
+              state: "on"
     action:
-    - entity_id: switch.orp
-      service: switch.turn_off
-    - entity_id: input_boolean.lock_bleach
-      service: input_boolean.turn_on
-    - data_template:
-        title: "Bleach Injection Blocked!"
-        message: >-
-          {% if is_state("input_boolean.imperial", "on") %}
-            {{states('input_number.notify_blach_high_imperial')|float|round(1)}} gallons in 48h!
-          {% else %}
-            {{states('input_number.notify_bleach_high')|float|round(1)}} liters in 48h!
-          {% endif %}
-      service: notify.notify
+      - entity_id: switch.orp
+        service: switch.turn_off
+      - entity_id: input_boolean.lock_bleach
+        service: input_boolean.turn_on
+      - data_template:
+          title: "Bleach Injection Blocked!"
+          message: >-
+            {% if is_state("input_boolean.imperial", "on") %}
+              {{states('input_number.notify_blach_high_imperial')|float|round(1)}} gallons in 48h!
+            {% else %}
+              {{states('input_number.notify_bleach_high')|float|round(1)}} liters in 48h!
+            {% endif %}
+        service: notify.notify
 
   - alias: bleach_set
-  # TODO figure out this formula, needs documentation 
-    trigger: []
+    # TODO figure out this formula, needs documentation
+    trigger:
+      - platform: state
+        entity_id: input_number.capacity_metric
+      - platform: state
+        entity_id: input_number.fc_target
+      - platform: state
+        entity_id: input_number.bleach_concentration
+      - platform: state
+        entity_id: sensor.e_fc
     condition: []
     action:
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.bleach_inject
-        value: " {{ ( states('input_number.capacity_metric')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_inject
+          value: " {{ ( states('input_number.capacity_metric')|float * ( states('input_number.fc_target')|float - states('sensor.e_fc')|float ) * (100 / states('input_number.bleach_concentration')|float ), 0)|max |round(0)|int }} "
 
   - alias: bleach_inject
-    trigger: []
+    trigger:
+      - platform: event
+        event_type: event_bleach_inject
     condition: []
     action:
-    - condition: state
-      entity_id: input_boolean.lock_bleach
-      state: 'off'
-    - condition: state
-      entity_id: switch.Pump
-      state: 'on'
-    - condition: numeric_state
-      entity_id: input_number.bleach_inject
-      value_template: "{{ states('input_number.bleach_inject')|float / states('input_number.capacity_metric')|float }}"
-      above: 5.0
-      below: 200.0
-    - entity_id: switch.orp
-      service: switch.turn_on
-    - data_template:
-        title: "Chlorine Injection Start"
-        message: >-
-          {% if is_state("input_boolean.imperial", "on") %}
-            Adding {{(states('input_number.bleach_inject')|float * 0.033814)|round(0)}} oz
-          {% else %}
-            Adding {{states('input_number.bleach_inject')|float|round(0)}} ml
-          {% endif %}
-      service: notify.notify
-    - delay: 00:00:{{ [0 , 60 * states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }}
-    - entity_id: switch.orp
-      service: switch.turn_off
-    - data_template:
-        title: "Chlorine Injection Ended"
-        message: Pump ran for {{ [0 , states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }} minutes
-      service: notify.notify
+      - condition: state
+        entity_id: input_boolean.lock_bleach
+        state: "off"
+      - condition: state
+        entity_id: switch.pump
+        state: "on"
+      - condition: numeric_state
+        entity_id: input_number.bleach_inject
+        value_template: "{{ states('input_number.bleach_inject')|float / states('input_number.capacity_metric')|float }}"
+        above: 5.0
+        below: 200.0
+      - entity_id: switch.orp
+        service: switch.turn_on
+      - data_template:
+          title: "Chlorine Injection Start"
+          message: >-
+            {% if is_state("input_boolean.salt_system", "on") %}
+              Starting Salt Chlorinator
+            {% else %}
+              {% if is_state("input_boolean.imperial", "on") %}
+                Adding {{(states('input_number.bleach_inject')|float * 0.033814)|round(0)}} oz
+              {% else %}
+                Adding {{states('input_number.bleach_inject')|float|round(0)}} ml
+              {% endif %}
+            {% endif %}
+        service: notify.notify
+      - delay: 00:00:{{states('sensor.time_to_inject')}}
+      - entity_id: switch.orp
+        service: switch.turn_off
+      - data_template:
+          title: "Chlorine Injection Ended"
+          message: >-
+            {% if is_state("input_boolean.salt_system", "on") %}
+              Stopping Salt Chlorinator
+            {% else %}
+              Pump ran for {{ [0 , states('input_number.bleach_inject')|float/ states('input_number.bleach_speed')|float ]|max|int }} minutes
+            {% endif %}
+        service: notify.notify
