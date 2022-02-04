@@ -5,44 +5,53 @@ sensor:
         friendly_name: "Pump State"
         value_template: >-
           {% if is_state('switch.pump', 'on') %}
-             {% if is_state('switch.turbo', 'on') %}
+            {% if is_state('switch.turbo', 'on') %}
                 high
-             {% else %}
+            {% else %}
                 low
-             {% endif %}
+            {% endif %}
           {% else %}
-             off
+            off
           {% endif %}
 
-      remain_cycles:
-        friendly_name: "Remain cycles"
+      runtime_left:
+        # How much time remains for the pump to run today
+        friendly_name: "Pump runtime left"
+        unit_of_measurement: "h"
         value_template: >-
-          {{(states('input_number.notify_cycles')|float - (states('sensor.cummulated_flow_low')|float + states('sensor.cummulated_flow_high')|float * 5) / (state_attr('input_datetime.recirculation','hour')+ state_attr('input_datetime.recirculation','minute')|float/60) )|round(1)}}
-        unit_of_measurement: ''
-  
+          {{ [0, (states('sensor.daily_runtime_readonly')|float(0) - states('sensor.cummulated_flow_low')|float(0)) | round(1,default=0)] | max}}
+        # TODO - remove
+        #          {{(states('input_number.notify_cycles')|float - (states('sensor.cummulated_flow_low')|float + states('sensor.cummulated_flow_high')|float * 5) / (state_attr('input_datetime.recirculation','hour')+ state_attr('input_datetime.recirculation','minute')|float/60) )|round(1)}}
+
+      runtime_left_human:
+        # runtime left in human readable form
+        friendly_name: "Pump runtime left"
+        value_template: >-
+          {% set hours = states('sensor.time_at_work') | float %}
+          {% set minutes = ((hours % 1) * 60) | int %}
+          {% set hours = (hours - (hours % 1)) | int %}
+          {{ '%02i:%02i'%(hours, minutes) }}
+
   - platform: history_stats
     name: cummulated_flow_low
     entity_id: sensor.pump_state
-    state: 'low'
+    state: "low"
     type: time
-    # TODO: only 1 day?
-    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
-    # start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
 
   - platform: history_stats
     name: cummulated_flow_high
     entity_id: sensor.pump_state
-    state: 'high'
+    state: "high"
     type: time
-    # TODO: only 1 day?
-    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
-    # start: "{{ state_attr('input_datetime.cummulated_flow_start','timestamp') }}"
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
 
   - platform: statistics
     name: flow_on
     entity_id: binary_sensor.watermeter
+    state_characteristic: count
     max_age:
       seconds: 5
     sampling_size: 1
@@ -51,6 +60,7 @@ sensor:
   - platform: statistics
     name: pulses_per_minute
     entity_id: binary_sensor.watermeter
+    state_characteristic: count
     max_age:
       minutes: 1
     sampling_size: 760 # max 2 * 38 * 10 L/min
@@ -61,8 +71,8 @@ sensor:
       flow_rate:
         friendly_name: "Flow Rate"
         value_template: >-
-          {{(states('sensor.pulses_per_minute')|int / 76)|float|round(1)}}
-        unit_of_measurement: 'L/min'
+          {{(states('sensor.pulses_per_minute')|int(0) / 76)|float|round(1,default=0)}}
+        unit_of_measurement: "L/min"
 
 binary_sensor:
   - platform: rpi_gpio
@@ -73,52 +83,10 @@ binary_sensor:
     sensors:
       flow_on_icon:
         friendly_name: "Flow Cell State"
-        value_template: "{{ states('sensor.flow_on')|int == 1 }}"
+        value_template: "{{ states('sensor.flow_on')|int(default=0) == 1 }}"
         icon_template: >-
-          {% if states('sensor.flow_on')|int == 1 %}
+          {% if states('sensor.flow_on')|int(default=0) == 1 %}
             mdi:water
           {% else %}
             mdi:water-off
           {% endif %}
-
-input_datetime:
-  cummulated_flow_start:
-    name: Cummulated Flow Start
-    has_date: true
-    has_time: true
-    icon: mdi:timer-outline
-
-input_number:
-  notify_cycles:
-    name: Low Cycle Count
-    icon: mdi:timer-outline
-    min: 0
-    max: 100
-    step: 5
-
-automation:
-  - alias: notify_cummulated_flow
-    trigger:
-    - platform: numeric_state
-      entity_id: sensor.remain_cycles
-      below: 1
-    condition:
-    - condition: numeric_state
-      entity_id: input_number.notify_cycles
-      above: 0
-    action:
-    - data_template:
-        message: "in low speed: {{state_attr('sensor.cummulated_flow_low','value')}}{{'\n'}}in high speed: {{state_attr('sensor.cummulated_flow_high','value')}}{{'\n'}}@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-        title: "Flow: {{states('input_number.notify_cycles')|int}} cycles reached!"
-      service: notify.notify
-
-  - alias: reset_cummulated_flow_start
-    trigger: []
-    condition: []
-    action:
-    - service: input_datetime.set_datetime
-      data_template:
-        entity_id: input_datetime.cummulated_flow_start
-        date: "{{now().timestamp()|timestamp_custom('%Y-%m-%d', True)}}"
-        time: "{{now().timestamp()|timestamp_custom('%H:%M:%S', True)}}"
-

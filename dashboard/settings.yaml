@@ -1,0 +1,188 @@
+badges: []
+title: Settings
+icon: "mdi:tune"
+cards:
+  - title: Pool Settings
+    type: entities
+    show_header_toggle: false
+    entities:
+      - type: divider
+        style:
+          height: 1px
+          margin-left: auto
+          margin-right: auto
+          background: "#c0c6ca"
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.capacity_metric
+          name: Pool Capacity (m³)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.capacity_imperial
+          name: Pool Capacity (gallons)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.pump_speed_imperial
+          name: Pump Speed (GPM)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.pump_speed
+          name: Pump Speed (L/min)
+      - entity: input_number.quality
+        name: Quality
+      - entity: sensor.turnover
+        name: Turnover
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+          :host {
+            --paper-item-icon-color:
+              {% if is_state("input_boolean.enough_pump_runtime", "on") %}
+                green
+              {% else %}
+                red
+              {% endif %}
+          }
+      - entity: sensor.time_to_run_daily
+        name: Time pump should run today (at current temperature)
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+          :host {
+            --paper-item-icon-color:
+              {% if is_state("input_boolean.enough_pump_runtime", "on") %}
+                green
+              {% else %}
+                red
+              {% endif %}
+          }
+      - entity: sensor.daily_runtime_readonly
+        name: Pump scheduled to run daily
+        tap_action:
+          action: none
+        style: |
+          :host {
+            color: gray;
+          }
+
+  # Notifications
+  - title: Notifications
+    type: entities
+    show_header_toggle: false
+    entities:
+      - type: divider
+        style:
+          height: 1px
+          margin-left: auto
+          margin-right: auto
+          background: "#c0c6ca"
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.notify_muriatic_high
+          name: Acid Overfeed (l/48h)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.notify_muriatic_high_imperial
+          name: Acid Overfeed (gal/48h)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.notify_muriatic_tank
+          name: Acid Tank Low (l)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.notify_muriatic_tank_imperial
+          name: Acid Tank Low (gal)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.notify_bleach_high
+          name: Chlorine Overfeed (l/48h)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.notify_bleach_high_imperial
+          name: Chlorine Overfeed (gal/48h)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state_not: "on"
+        row:
+          entity: input_number.notify_bleach_tank
+          name: Chlorine Tank Low (l)
+      - type: conditional
+        conditions:
+          - entity: input_boolean.imperial
+            state: "on"
+        row:
+          entity: input_number.notify_bleach_tank_imperial
+          name: Chlorine Tank Low (gal)
+
+  # System Configuration
+  - title: System Configuration
+    type: entities
+    show_header_toggle: false
+    entities:
+      - type: divider
+        style:
+          height: 1px
+          margin-left: auto
+          margin-right: auto
+          background: "#c0c6ca"
+      - entity: input_boolean.has_flow_sensor
+        name: Flow Sensor Present
+        tap_action:
+          action: none
+      - entity: input_boolean.turbo
+        name: Dual Speed Pump
+        tap_action:
+          action: none
+      - entity: input_boolean.has_ph_control
+        name: Acid (pH) Control
+        tap_action:
+          action: none
+      - entity: input_boolean.has_chlorine_control
+        name: Chlorine (ORP) Control
+        tap_action:
+          action: none
+      - entity: input_boolean.salt_system
+        name: Salt System
+        tap_action:
+          action: none
+      - entity: input_boolean.has_heater
+        name: Heater Control
+        tap_action:
+          action: none

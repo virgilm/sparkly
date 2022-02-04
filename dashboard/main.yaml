@@ -1,0 +1,307 @@
+badges:
+  - entity: sun.sun
+    name: "Outside"
+    style: |
+      :host {
+        --ha-label-badge-size: 50px;
+      }
+  - entity: sensor.openweathermap_temperature
+    name: "Temp"
+    style: |
+      :host {
+        --ha-label-badge-size: 50px;
+      }
+  - entity: sensor.simple_date
+    style: |
+      :host {
+        --ha-label-badge-size: 50px;
+      }
+  - entity: sensor.simple_time
+    style: |
+      :host {
+        --ha-label-badge-size: 50px;
+      }
+title: Pool
+panel: false
+icon: "mdi:pool"
+cards:
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: weather-forecast
+            entity: weather.openweathermap
+            show_forecast: false
+      - title: Status
+        type: horizontal-stack
+        cards:
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            card:
+              entity: sensor.pool_temp_fahrenheit
+              name: Temp
+              type: gauge
+              needle: true
+              min: 60
+              max: 90
+              severity:
+                yellow: 32
+                green: 74
+                red: 85
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            card:
+              entity: sensor.pool_temp
+              name: Temp
+              type: gauge
+              needle: true
+              min: 15
+              max: 34
+              severity:
+                yellow: 0
+                green: 23
+                red: 29
+          - entity: input_number.ph
+            name: pH
+            type: gauge
+            min: 6.5
+            max: 8.5
+            needle: true
+            severity:
+              yellow: 6.5
+              green: 7.2
+              red: 7.8
+          - entity: input_number.orp
+            name: ORP
+            type: gauge
+            min: 0
+            max: 1200
+            needle: true
+            severity:
+              red: 0
+              green: 500
+              yellow: 800
+      # second row starts here
+      - show_name: false
+        entities:
+          - entity: sensor.ezo_temperature
+            show_last_changed: true
+            icon: mdi:thermometer
+            # image: /local/glossy-lightgray-button.png
+            tap_action:
+              action: call-service
+              service: homeassistant.update_entity
+              service_data:
+                entity_id: sensor.ezo_temperature
+          - entity: sensor.ezo_ph
+            show_last_changed: true
+            icon: mdi:alarm-check
+            tap_action:
+              action: call-service
+              service: homeassistant.update_entity
+              service_data:
+                entity_id: sensor.ezo_ph
+          - entity: sensor.ezo_orp
+            show_last_changed: true
+            icon: mdi:alarm-check
+            tap_action:
+              action: call-service
+              service: homeassistant.update_entity
+              service_data:
+                entity_id: sensor.ezo_orp
+        type: glance
+        show_state: true
+      - title: Supplies
+        type: horizontal-stack
+        cards:
+          - max: 24
+            min: 0
+            entity: sensor.runtime_left
+            name: Runtime Left
+            type: gauge
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state_not: "on"
+            card:
+              type: gauge
+              entity: input_number.muriatic_tank
+              max: 76
+              min: 0
+              severity:
+                green: 20
+                red: 0
+                yellow: 5
+          - type: conditional
+            conditions:
+              - entity: input_boolean.imperial
+                state: "on"
+            card:
+              type: gauge
+              entity: input_number.muriatic_tank_imperial
+              max: 20
+              min: 0
+              severity:
+                green: 5
+                red: 0
+                yellow: 2
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state_not: "on"
+              - entity: input_boolean.imperial
+                state_not: "on"
+            card:
+              type: gauge
+              entity: input_number.bleach_tank
+              max: 76
+              min: 0
+              severity:
+                green: 20
+                red: 0
+                yellow: 5
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state_not: "on"
+              - entity: input_boolean.imperial
+                state: "on"
+            card:
+              type: gauge
+              entity: input_number.bleach_tank_imperial
+              max: 20
+              min: 0
+              severity:
+                green: 5
+                red: 0
+                yellow: 2
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state: "on"
+              - entity: input_boolean.imperial
+                state: "on"
+            card:
+              type: gauge
+              entity: sensor.chlorine_today_imperial
+              max: 20
+              min: 0
+          - type: conditional
+            conditions:
+              - entity: input_boolean.salt_system
+                state: "on"
+              - entity: input_boolean.imperial
+                state_not: "on"
+            card:
+              type: gauge
+              entity: sensor.chlorine_today
+              max: 20
+              min: 0
+      - type: horizontal-stack
+        cards:
+          # Main pump control
+          - type: conditional
+            conditions:
+              - entity: input_boolean.maintenance
+                state_not: "on"
+            card:
+              type: button
+              entity: binary_sensor.pump
+              tap_action:
+                action: call-service
+                service: switch.toggle
+                service_data:
+                  entity_id: switch.pump
+          - type: conditional
+            conditions:
+              - entity: input_boolean.maintenance
+                state: "on"
+            card:
+              type: button
+              entity: binary_sensor.pump
+              tap_action:
+                action: none
+          # Turbo TODO
+          - type: conditional
+            conditions:
+              - entity: input_boolean.turbo
+                state: "on"
+            card:
+              type: button
+              entity: switch.turbo
+              icon: mdi:car-turbocharger
+              tap_action:
+                action: toggle
+          # PH Pump Control
+          - type: conditional
+            conditions:
+              - entity: input_boolean.lock_muriatic
+                state_not: "on"
+            card:
+              type: button
+              entity: binary_sensor.muriatic
+              tap_action:
+                action: call-service
+                service: switch.toggle
+                service_data:
+                  entity_id: switch.ph
+          - type: conditional
+            conditions:
+              - entity: input_boolean.lock_muriatic
+                state: "on"
+            card:
+              type: button
+              entity: binary_sensor.muriatic
+              tap_action:
+                action: none
+          # Chlorine Control
+          - type: conditional
+            conditions:
+              - entity: input_boolean.lock_bleach
+                state_not: "on"
+            card:
+              type: button
+              entity: binary_sensor.bleach
+              tap_action:
+                action: call-service
+                service: switch.toggle
+                service_data:
+                  entity_id: switch.orp
+          - type: conditional
+            conditions:
+              - entity: input_boolean.lock_bleach
+                state: "on"
+            card:
+              type: button
+              entity: binary_sensor.bleach
+              tap_action:
+                action: none
+      - type: horizontal-stack
+        cards:
+          - type: conditional
+            conditions:
+              - entity: input_boolean.has_flow_sensor
+                state: "on"
+            card:
+              type: gauge
+              name: Flow
+              max: 10
+              min: 0
+              entity: sensor.flow_rate
+              severity:
+                green: 3
+                red: 0
+                yellow: 9
+          - type: conditional
+            conditions:
+              - entity: input_boolean.has_flow_sensor
+                state: "on"
+            card:
+              type: button
+              entity: binary_sensor.flow_on_icon
+              tap_action:
+                action: none

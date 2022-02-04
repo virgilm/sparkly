@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "domain": "atlas_scientific",
   "name": "Atlas Scientific",
   "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/example_sensor/",

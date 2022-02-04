@@ -3,12 +3,6 @@ input_datetime:
     name: Pump cycle start time
     has_date: false
     has_time: true
-  recirculation:
-    name: Recirculation cycle
-    has_time: true
-    has_date: false
-    icon: mdi:timer-outline
-
 
 input_number:
   capacity_imperial:
@@ -17,60 +11,102 @@ input_number:
     max: 50000
     step: 1000
     unit_of_measurement: gal
-    icon: mdi:water-pump
-    mode: box
+    icon: mdi:cup-water
   capacity_metric:
     name: Pool Capacity (m³)
     min: 5
     max: 100
     unit_of_measurement: m³
-    icon: mdi:water-pump
-    mode: box
+    icon: mdi:cup-water
+  pump_speed:
+    min: 1
+    max: 600
+    step: 1
+    unit_of_measurement: "L/min"
+    icon: mdi:car-turbocharger
+  pump_speed_imperial:
+    min: 1
+    max: 150
+    step: 1
+    unit_of_measurement: "gal/min (GPM)"
+    icon: mdi:needle
   quality:
     name: Water Quality
-    min: 0
-    max: 9
+    min: 1
+    max: 5
     unit_of_measurement: stars
     icon: mdi:star
   turbo:
-    name: '% in high speed'
+    name: "% in high speed"
     min: 0
     max: 100
     step: 5
-    unit_of_measurement: '%'
+    unit_of_measurement: "%"
     icon: mdi:circle-slice-2
+  daily_runtime:
+    name: "Pump Daily Runtime"
+    min: 0
+    max: 24
+    unit_of_measurement: "h"
+    icon: mdi:circle-slice-2
+    initial: 0
 
 input_boolean:
-  turbo:
-    name: Dual-speed Pump
-    icon: mdi:car-turbocharger
-  
   factory_started:
     name: Factory config started
     icon: mdi:auto-fix
 
-# should we use imperial units or metric?
-# see issue #1
+  # should we use imperial units or metric?
+  # see issue #1
   imperial:
     name: Imperial Units
     icon: mdi:tape-measure
     initial: true
 
+  maintenance:
+    name: Maintainance
+    icon: mdi:wrench
+    initial: false
+
+  has_pump_control:
+    name: Pump Control
+    icon: mdi:engine
+
+  turbo:
+    name: Dual-speed Pump
+    icon: mdi:car-turbocharger
+
+  enough_pump_runtime:
+    # Set by Node Red
+    # if the schdeule set allows the pump to satisfy the turnover.
+    name: Enough time to run pump
+    initial: false
+
   salt_system:
     name: Salt System
     icon: mdi:shaker-outline
-    initial: false
+
+  has_chlorine_control:
+    name: Chlorine Control
+    icon: mdi:beaker
+
+  has_ph_control:
+    name: PH Control
+    icon: mdi:beaker
 
   has_flow_sensor:
     name: Flow sensor present
-    initial: false
+    icon: mdi:waves-arrow-right
+
+  has_heater:
+    name: Heater Control
+    icon: mdi:radiator
 
 sensor:
   - platform: template
     sensors:
       simple_date:
         friendly_name: "Date"
-        entity_id: sensor.time
         value_template: >-
           {% if is_state("input_boolean.imperial", "on") %}
             {{as_timestamp(now()) | timestamp_custom('%m/%d')}}
@@ -79,10 +115,43 @@ sensor:
           {% endif %}
       simple_time:
         friendly_name: "Time"
-        entity_id: sensor.time
-        value_template: "{{as_timestamp(now()) | timestamp_custom('%H:%M')}}"
+        value_template: >-
+          {% if is_state("input_boolean.imperial", "on") %}
+            {{as_timestamp(now()) | timestamp_custom('%I:%M%p')}}
+          {% else %}
+            {{as_timestamp(now()) | timestamp_custom('%H:%M')}}
+          {% endif %}
+      daily_runtime_readonly:
+        unit_of_measurement: "h"
+        value_template: >-
+          {{ states("input_number.daily_runtime") }}
+        icon_template: >-
+          {{ "mdi:circle-slice-2" }}
 
 automation:
+  # Sync Injection Speed capacity (ml/min vs GPD)
+  - alias: pump_inj_sync_1
+    trigger:
+      - platform: state
+        entity_id: input_number.pump_speed
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.pump_speed_imperial
+          value: "{{(states('input_number.pump_speed')|float * 0.2642 )| round(0) }}"
+
+  - alias: pump_inj_sync_2
+    trigger:
+      - platform: state
+        entity_id: input_number.pump_speed_imperial
+    condition: []
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.pump_speed
+          value: "{{(states('input_number.pump_speed_imperial')|int / 0.2642)| round(0) }}"
+
   # Sync Pool Capacity (m3 vs gal)
   - alias: capacity_sync_1
     trigger:
@@ -93,7 +162,7 @@ automation:
       - service: input_number.set_value
         data_template:
           entity_id: input_number.capacity_imperial
-          value: "{{(states('input_number.capacity_metric')|float * 264.172)| round(1) }}"
+          value: "{{(states('input_number.capacity_metric')|float * 264.172)| round(1000) }}"
 
   - alias: capacity_sync_2
     trigger:
@@ -104,65 +173,97 @@ automation:
       - service: input_number.set_value
         data_template:
           entity_id: input_number.capacity_metric
-          value: "{{(states('input_number.capacity_imperial')|float / 264.172)| round(1) }}"
+          value: "{{(states('input_number.capacity_imperial')|float / 264.172)| round(0) }}"
 
   - alias: factory_started
     trigger:
       platform: homeassistant
       event: start
     condition:
-      condition: state
-      entity_id: input_boolean.factory_started
-      state: 'off'
-    action:
-    - service: input_boolean.turn_on
-      data:
+      # TODO - check if this works
+      - condition: state
         entity_id: input_boolean.factory_started
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.capacity_metric
-        value: 50
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.quality
-        value: 4
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.bleach_tank
-        value: 20
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.bleach_concentration
-        value: 5
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.bleach_speed
-        value: 25
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.fc_target
-        value: 1.5
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.e_fc_adjust
-        value: 0
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.ph_target
-        value: 7.2
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.muriatic_tank
-        value: 10
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.muriatic_concentration
-        value: 20
-    - service: input_number.set_value
-      data_template:
-        entity_id: input_number.muriatic_speed
-        value: 25
-    - service: input_datetime.set_datetime
-      data_template:
-        entity_id: input_datetime.recirculation
-        time: 08:00:00
+        state: "off"
+    action:
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.factory_started
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.lock_bleach
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.lock_muriatic
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.salt_system
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.has_heater
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.turbo
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.has_ph_control
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.has_chlorine_control
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.has_pump_control
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.has_flow_sensor
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.capacity_imperial
+          value: 16000
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.quality
+          value: 3
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.pump_speed
+          value: 150
+      - service: input_select.select
+        data_template:
+          entity_id: input_select.type_of_sched
+          value: "Automatic"
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_tank
+          value: 38
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_concentration
+          value: 20
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.bleach_speed
+          value: 25
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.fc_target
+          value: 1.2
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.e_fc_adjust
+          value: 0
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.ph_target
+          value: 7.4
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.muriatic_tank
+          value: 38
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.muriatic_concentration
+          value: 20
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.muriatic_speed
+          value: 25

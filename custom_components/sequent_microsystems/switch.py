@@ -3,7 +3,7 @@ import lib8relay
 import logging
 
 from homeassistant.const import (
-	CONF_NAME, CONF_PORT)
+	CONF_NAME, CONF_PORT, CONF_VALUE_TEMPLATE)
 
 from homeassistant.components.light import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
@@ -14,6 +14,7 @@ CONF_STACK="stack"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 	vol.Required(CONF_RELAY): cv.string,
+#    vol.Optional(CONF_VALUE_TEMPLATE): cv.template,
 	vol.Optional(CONF_PORT, default='0x3F'): cv.string,
 	vol.Optional(CONF_NAME, default='relay8'): cv.string,
 	vol.Optional(CONF_STACK, default=0): cv.string,
@@ -25,6 +26,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 	"""Setup the 8relay platform."""
 	add_devices([EigthRelay(
 		port=config.get(CONF_PORT),
+#        value_template = config.get(CONF_VALUE_TEMPLATE),
 		name=config.get(CONF_NAME),
         stack=config.get(CONF_STACK),
         relay=config.get(CONF_RELAY)
@@ -34,6 +36,8 @@ class EigthRelay(SwitchEntity):
     """Sequent Microsystems Relay"""
     def __init__(self, port, name, stack, relay):
         self._port = int(port, 16)
+#        self._value_template = value_template
+#        _LOGGER.error("SEQUENT: , %d", self.value_template)
         self._name = name
         self._relay = int(relay)
         self._stack = int(stack)
