@@ -7,7 +7,7 @@
 
 ## Overview:
 
- A cost-effective, easy-to-build, easy-to-use "Swimming Pool Automation System" with top functions to automate, control and monitor (from web) small-medium size swimming pools.
+ A cost-effective, easy-to-build, easy-to-use "Swimming Pool Automation System" with top functions to automate, control and monitor (from web) swimming pools.
 
 - Automatic filter control (single speed pumps) based on turnover, temperature and energy tariffs. Manual scheduling too. The power relay used needs to be able to withstand the Inductive Load of the Pool Pump motor. 
 - 3 sensors:
