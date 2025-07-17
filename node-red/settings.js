@@ -42,6 +42,8 @@
  */
 
 module.exports = {
+  credentialSecret: process.env.NODE_RED_CREDENTIAL_SECRET,
+
   // Retry time in milliseconds for MQTT connections
   mqttReconnectTime: 15000,
 

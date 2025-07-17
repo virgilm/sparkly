@@ -1,5 +1,5 @@
 homeassistant:
-  name: RaspiPool
+  name: Sparkly
   # Location required to calculate the time the sun rises and sets
   latitude: !secret latitude
   longitude: !secret longitude
@@ -7,6 +7,13 @@ homeassistant:
   # customize: !include customize.yaml
   packages: !include_dir_named packages
   internal_url: "http://homeassistant.local:8123"
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 0.0.0.0/0 # TODO: we could restrict to docker internal networks
+      allow_bypass_login: true
+    - type: homeassistant  # fallback for UI logins
+
 
 # Disable default config, selectively enable services needed.
 # default_config:

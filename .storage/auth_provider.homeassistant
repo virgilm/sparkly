@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "auth_provider.homeassistant",
+  "data": {
+    "users": [
+      {
+        "username": "sparkly",
+        "password": "JDJiJDEyJGxBTi9WV1QuMmkyTjBKWEIxUXVPeGU4Z0p0MGhWN0pXNVd2dERSUU5PcUZ1LklhbjRST0JL"
+      }
+    ]
+  }
+}

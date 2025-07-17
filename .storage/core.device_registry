@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "minor_version": 10,
+  "key": "core.device_registry",
+  "data": {
+    "devices": [
+      {"area_id":null,"config_entries":["01K0AK9QEH44Z5GP4HBY6JXS27"],"config_entries_subentries":{"01K0AK9QEH44Z5GP4HBY6JXS27":[null]},"configuration_url":null,"connections":[],"created_at":"2025-07-16T21:47:23.008520+00:00","disabled_by":null,"entry_type":"service","hw_version":null,"id":"14cebca86e7b3ddab17cabbd39b9d086","identifiers":[["sun","01K0AK9QEH44Z5GP4HBY6JXS27"]],"labels":[],"manufacturer":null,"model":null,"model_id":null,"modified_at":"2025-07-16T21:47:23.008544+00:00","name_by_user":null,"name":"Sun","primary_config_entry":"01K0AK9QEH44Z5GP4HBY6JXS27","serial_number":null,"sw_version":null,"via_device_id":null},
+      {"area_id":null,"config_entries":["01K0AKAAXJ8K6TTTCT8NT02TH7"],"config_entries_subentries":{"01K0AKAAXJ8K6TTTCT8NT02TH7":[null]},"configuration_url":"homeassistant://config/backup","connections":[],"created_at":"2025-07-16T21:47:42.900340+00:00","disabled_by":null,"entry_type":"service","hw_version":null,"id":"79251b158008b06253fdd9fddc7650d3","identifiers":[["backup","backup_manager"]],"labels":[],"manufacturer":"Home Assistant","model":"Home Assistant Backup","model_id":null,"modified_at":"2025-07-16T21:47:42.900357+00:00","name_by_user":null,"name":"Backup","primary_config_entry":"01K0AKAAXJ8K6TTTCT8NT02TH7","serial_number":null,"sw_version":"2025.7.2","via_device_id":null},
+      {"area_id":null,"config_entries":["01K0AKAQ6YDQB3FEBGX0CZB02H"],"config_entries_subentries":{"01K0AKAQ6YDQB3FEBGX0CZB02H":[null]},"configuration_url":"https://www.met.no/en","connections":[],"created_at":"2025-07-17T04:18:20.207364+00:00","disabled_by":null,"entry_type":"service","hw_version":null,"id":"cc5486abeb838f2aaaa7cbef9335f6c0","identifiers":[["met","01K0AKAQ6YDQB3FEBGX0CZB02H"]],"labels":[],"manufacturer":"Met.no","model":"Forecast","model_id":null,"modified_at":"2025-07-17T04:18:20.207476+00:00","name_by_user":null,"name":"Forecast","primary_config_entry":"01K0AKAQ6YDQB3FEBGX0CZB02H","serial_number":null,"sw_version":null,"via_device_id":null}
+    ],
+    "deleted_devices": []
+  }
+}
