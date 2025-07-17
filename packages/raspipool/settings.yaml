@@ -227,7 +227,7 @@ automation:
         data_template:
           entity_id: input_number.pump_speed
           value: 150
-      - service: input_select.select
+      - service: input_select.select_option
         data_template:
           entity_id: input_select.type_of_sched
           value: "Automatic"

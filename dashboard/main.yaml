@@ -5,7 +5,7 @@ badges:
       :host {
         --ha-label-badge-size: 50px;
       }
-  - entity: sensor.openweathermap_temperature
+  - entity: sensor.metno_current_temperature
     name: "Temp"
     style: |
       :host {

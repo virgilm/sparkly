@@ -3,7 +3,7 @@ homeassistant:
   # Location required to calculate the time the sun rises and sets
   latitude: !secret latitude
   longitude: !secret longitude
-  unit_system: imperial
+  unit_system: us_customary
   # customize: !include customize.yaml
   packages: !include_dir_named packages
   internal_url: "http://homeassistant.local:8123"
@@ -50,14 +50,19 @@ sensor:
     display_options:
       - "time"
       - "date"
-  - platform: uptime
-    name: "HA Runtime"
   - platform: template
     sensors:
       runtime_mins:
         friendly_name: "Home Assistant Runtime"
         value_template: >
           {{ (((as_timestamp(now()) - as_timestamp(states('sensor.ha_runtime'))) ) /60  ) | int  }}
+
+template:
+  - sensor:
+      - name: "Current Temperature"
+        unique_id: "sensor.metno_current_temperature"
+        unit_of_measurement: "°C"
+        state: "{{ state_attr('weather.home', 'temperature') }}"
 
 tts:
   - platform: google_translate
@@ -83,7 +88,7 @@ panel_iframe:
   node_red:
     title: Node Red
     icon: mdi:wrench
-    url: http://sparkly.local:46836/
+    url: http://sparkly.local:1880/
 panel_custom:
   - name: panel-redirect
     # url_path needs to be unique for each panel_custom config
